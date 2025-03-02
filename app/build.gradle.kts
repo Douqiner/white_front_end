@@ -61,5 +61,4 @@ dependencies {
     implementation(libs.gson.converter)
     implementation(libs.navigation.compose)
 
-    implementation(libs.lazytable)
 }
