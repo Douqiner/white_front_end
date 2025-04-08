@@ -1,5 +1,6 @@
 package com.example.white_web.home
 
+import PublishScreen
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -20,14 +21,14 @@ data class BottomNavItem(
 
 val bottomNavItems = listOf(
     BottomNavItem(
-        title = "乘客",
+        title = "首页",
         iconResId = R.drawable.day,  // 存储资源 ID
         route = "passenger"
     ),
     BottomNavItem(
-        title = "车主",
+        title = "发布",
         iconResId = R.drawable.day,  // 存储资源 ID
-        route = "driver"
+        route = "publish"
     ),
     BottomNavItem(
         title = "我的",
@@ -81,8 +82,8 @@ fun HomeScreen() {
                 composable("passenger") {
                     Text("$USERNAME, welcome to passenger")
                 }
-                composable("driver") {
-                    Text("$USERNAME, welcome to driver")
+                composable("publish") {
+                    PublishScreen()
                 }
                 composable("myinfo") {
                     MyInfoScreen()

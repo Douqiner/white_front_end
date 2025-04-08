@@ -1,5 +1,10 @@
 package com.example.white_web
 
+import DetailRequest
+import DetailResponse
+import GetPosResponse
+import PublishRequest
+import PublishResponse
 import com.example.white_web.home.LookResponse
 import retrofit2.Response
 import retrofit2.Retrofit
@@ -26,6 +31,15 @@ interface ApiService {
 
     @GET("/api/look")
     suspend fun look(@Header("Authorization") token: String? = TOKEN): Response<LookResponse>
+
+    @GET("/api/getPos")
+    suspend fun getPos(@Header("Authorization") token: String? = TOKEN): Response<GetPosResponse>
+
+    @POST("/api/publish")
+    suspend fun publish(@Header("Authorization") token: String? = TOKEN, @Body request: PublishRequest): Response<PublishResponse>
+
+    @POST("/api/detail")
+    suspend fun detail(@Header("Authorization") token: String? = TOKEN, @Body request: DetailRequest): Response<DetailResponse>
 }
 
 val APISERVICCE = retrofit.create(ApiService::class.java)
