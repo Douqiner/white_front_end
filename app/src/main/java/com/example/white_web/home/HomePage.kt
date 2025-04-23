@@ -1,8 +1,6 @@
 package com.example.white_web.home
 
 import android.annotation.SuppressLint
-import android.os.Build
-import androidx.annotation.RequiresApi
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.expandIn
@@ -136,7 +134,6 @@ data class OrderItem(
 )
 
 // 辅助函数：格式化日期和时间为合适字符串
-@RequiresApi(Build.VERSION_CODES.O)
 fun formatOrderTime(date: String, earliest: String, latest: String): String {
     try {
         val orderDate = LocalDate.parse(date, DateTimeFormatter.ofPattern("yyyy-MM-dd"))
@@ -180,7 +177,6 @@ fun formatOrderTime(date: String, earliest: String, latest: String): String {
 }
 
 // 转换函数
-@RequiresApi(Build.VERSION_CODES.O)
 fun convertOrdersToRideShareItems(response: AllOrdersResponse): List<RideShareItem> {
     return response.data.list.map { order ->
         // 计算当前人数 (排除空值)
@@ -211,7 +207,6 @@ fun convertOrdersToRideShareItems(response: AllOrdersResponse): List<RideShareIt
     }
 }
 
-@RequiresApi(Build.VERSION_CODES.O)
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter", "DefaultLocale")
 @Composable
 fun HomePage(
@@ -560,7 +555,6 @@ fun HomePage(
 // 用于手势拖动距离的单位转换
 fun Float.toDp(density: androidx.compose.ui.unit.Density) = with(density) { this@toDp.toDp() }
 
-@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun SearchScreen(
     navController: NavController? = null, viewModel: HomeViewModel, onClose: () -> Unit
@@ -916,7 +910,6 @@ fun TripCard(navController: NavController? = null, tripInfo: RideShareItem) {
 
 // ---------- 预览函数 ----------
 // 用于在Android Studio设计视图中预览界面
-@RequiresApi(Build.VERSION_CODES.O)
 @Preview(showBackground = true)
 @Composable
 fun HomePagePreview() {
@@ -928,7 +921,6 @@ fun HomePagePreview() {
 }
 
 // 创建一个ViewModel
-@RequiresApi(Build.VERSION_CODES.O)
 class HomeViewModel : ViewModel() {
     private val _orders = MutableStateFlow<List<RideShareItem>>(emptyList())
     val listItems = _orders.asStateFlow()
@@ -949,7 +941,6 @@ class HomeViewModel : ViewModel() {
         fetchOrders()
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
     fun fetchOrders() {
         viewModelScope.launch {
             _isLoading.value = true
@@ -975,7 +966,6 @@ class HomeViewModel : ViewModel() {
         }
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
     fun searchOrders(queryKeywords: String) {
         viewModelScope.launch {
             _isSearching.value = true

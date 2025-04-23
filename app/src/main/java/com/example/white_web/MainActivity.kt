@@ -12,6 +12,7 @@ import com.example.white_web.ui.theme.White_webTheme
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.example.white_web.home.HomePage
 import com.example.white_web.home.HomeScreen
 
 class MainActivity : ComponentActivity() {
@@ -42,7 +43,13 @@ fun AppNavigation() {
             RegisterScreen(mainNavController)
         }
         composable("home") {
-            HomeScreen()
+            HomePage(
+                navController = mainNavController,
+            )
         }
+//        composable("currentOrders") {
+//            val viewModel = viewModel<CurrentOrdersViewModel>()
+//            CurrentOrdersScreen(mainNavController, viewModel)
+//        }
     }
 }
