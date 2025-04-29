@@ -1,5 +1,7 @@
 package com.example.white_web
 
+import DetailScreen
+import PublishScreen
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -13,7 +15,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.white_web.home.HomePage
-import com.example.white_web.home.HomeScreen
+
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -46,6 +48,13 @@ fun AppNavigation() {
             HomePage(
                 navController = mainNavController,
             )
+        }
+        composable("createTrip") {
+            PublishScreen(mainNavController)
+        }
+        composable("tripDetail/{tripId}") { backStackEntry ->
+            val tripId = backStackEntry.arguments?.getString("tripId")?.toIntOrNull()
+            DetailScreen(tripId!!)
         }
 //        composable("currentOrders") {
 //            val viewModel = viewModel<CurrentOrdersViewModel>()

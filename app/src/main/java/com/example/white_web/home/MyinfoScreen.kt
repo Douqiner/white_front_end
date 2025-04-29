@@ -30,11 +30,11 @@ data class LookResponse(
     val code: Int,
     val message: String,
     val data: Data?
-)
-
-data class Data(
-    val table: List<User>
-)
+) {
+    data class Data(
+        val table: List<User>
+    )
+}
 
 
 @Composable

@@ -1,5 +1,9 @@
 package com.example.white_web
 
+import DetailResponse
+import GetPosResponse
+import PublishRequest
+import PublishResponse
 import com.example.white_web.home.LookResponse
 import com.example.white_web.home.AllOrdersResponse
 import retrofit2.Response
@@ -34,6 +38,15 @@ interface ApiService {
 
     @GET("api/orders/search/{keyword}")
     suspend fun getSearchResults(@Path("keyword") keyword: String): Response<AllOrdersResponse>
+
+    @GET("/api/getPos")
+    suspend fun getPos(): Response<GetPosResponse>
+
+    @POST("/api/orders/add")
+    suspend fun publish(@Header("Authorization") token: String? = TOKEN, @Body request: PublishRequest): Response<PublishResponse>
+
+    @GET("/api/orders/{order_id}")
+    suspend fun detail(@Path("order_id") orderId: Int): Response<DetailResponse>
 }
 
 val APISERVICCE = retrofit.create(ApiService::class.java)

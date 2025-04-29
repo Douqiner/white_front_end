@@ -121,7 +121,7 @@ data class ApiData(
 )
 
 data class OrderItem(
-    val orderId: Int,
+    val order_id: Int,
     val user1: String,
     val user2: String?,
     val user3: String?,
@@ -191,7 +191,7 @@ fun convertOrdersToRideShareItems(response: AllOrdersResponse): List<RideShareIt
             formatOrderTime(order.date, order.earliest_departure_time, order.latest_departure_time)
 
         RideShareItem(
-            id = "order${order.orderId}",
+            id = "${order.order_id}",
             startPoint = order.departure,
             endPoint = order.destination,
             distance = "计算中...",  // 需要额外的地图服务计算距离
