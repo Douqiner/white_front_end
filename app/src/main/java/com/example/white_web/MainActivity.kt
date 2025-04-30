@@ -54,7 +54,7 @@ fun AppNavigation() {
         }
         composable("tripDetail/{tripId}") { backStackEntry ->
             val tripId = backStackEntry.arguments?.getString("tripId")?.toIntOrNull()
-            DetailScreen(tripId!!)
+            DetailScreen(tripId!!, mainNavController)
         }
 //        composable("currentOrders") {
 //            val viewModel = viewModel<CurrentOrdersViewModel>()

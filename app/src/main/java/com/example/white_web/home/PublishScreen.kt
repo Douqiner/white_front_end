@@ -10,6 +10,7 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material3.*
@@ -26,7 +27,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.example.white_web.APISERVICCE
-import com.example.white_web.RegisterScreen
+import com.example.white_web.R
 import com.example.white_web.ui.theme.White_webTheme
 import kotlinx.coroutines.launch
 import java.util.*
@@ -108,7 +109,7 @@ fun DisplayPublish(posList: List<String>, navController: NavHostController) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
 
-    Box(
+    Column(
         modifier = Modifier
             .fillMaxSize()
             .background(
@@ -118,328 +119,355 @@ fun DisplayPublish(posList: List<String>, navController: NavHostController) {
                         MaterialTheme.colorScheme.secondaryContainer
                     )
                 )
-            ),
-        contentAlignment = Alignment.Center
+            )
+            .windowInsetsPadding(WindowInsets.navigationBars)
     ) {
-        Column(
+        // 顶部栏
+        Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .verticalScroll(rememberScrollState())
-                .padding(horizontal = 16.dp, vertical = 24.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
+                .padding(horizontal = 16.dp, vertical = 12.dp),
+            horizontalArrangement = Arrangement.Start, // 将内容对齐到左侧
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            Card(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 16.dp),
-                shape = RoundedCornerShape(24.dp),
-                elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),
-                colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.surfaceContainer
-                )
+            // 返回按钮
+            IconButton(
+                onClick = { navController.popBackStack() }
             ) {
-                Column(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(16.dp),
-                    verticalArrangement = Arrangement.spacedBy(16.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    // 第一行：文字“拼车需求填写”
-                    Text(
-                        text = "拼车需求填写",
-                        style = MaterialTheme.typography.headlineMedium.copy(fontWeight = FontWeight.Bold),
-                        color = MaterialTheme.colorScheme.primary,
-                        modifier = Modifier.padding(bottom = 8.dp)
-                    )
-
-                    Column(
-                        modifier = Modifier,
-                        verticalArrangement = Arrangement.spacedBy(16.dp)
-                    ) {
-                        // 第二行：出发地多选框
-                        OutlinedTextField(
-                            value = departure,
-                            onValueChange = { departure = it },
-                            label = { Text("出发地") },
-                            readOnly = true,
-                            trailingIcon = {
-                                IconButton(onClick = { departureExpanded = true }) {
-                                    Icon(
-                                        Icons.Default.ArrowDropDown,
-                                        contentDescription = "Dropdown",
-                                        tint = MaterialTheme.colorScheme.primary
-                                    )
-                                }
-                            },
-                            modifier = Modifier.fillMaxWidth(),
-                            colors = TextFieldDefaults.colors(
-                                focusedContainerColor = MaterialTheme.colorScheme.surfaceContainer,
-                                unfocusedContainerColor = MaterialTheme.colorScheme.surfaceContainerLow,
-                                focusedIndicatorColor = Color.Transparent,
-                                unfocusedIndicatorColor = Color.Transparent,
-                                focusedLabelColor = MaterialTheme.colorScheme.primary,
-                                unfocusedLabelColor = MaterialTheme.colorScheme.outline
-                            )
-                        )
-                        DropdownMenu(
-                            expanded = departureExpanded,
-                            onDismissRequest = { departureExpanded = false },
-                            modifier = Modifier.fillMaxWidth()
-                        ) {
-                            posList.forEach { option ->
-                                DropdownMenuItem(
-                                    text = { Text(option) },
-                                    onClick = {
-                                        departure = option
-                                        departureExpanded = false
-                                    }
-                                )
-                            }
-                        }
-                    }
-
-                    Column(
-                        modifier = Modifier,
-                        verticalArrangement = Arrangement.spacedBy(16.dp)
-                    ) {
-                        // 第三行：目的地多选框
-                        OutlinedTextField(
-                            value = destination,
-                            onValueChange = { destination = it },
-                            label = { Text("目的地") },
-                            readOnly = true,
-                            trailingIcon = {
-                                IconButton(onClick = { destinationExpanded = true }) {
-                                    Icon(
-                                        Icons.Default.ArrowDropDown,
-                                        contentDescription = "Dropdown",
-                                        tint = MaterialTheme.colorScheme.primary
-                                    )
-                                }
-                            },
-                            modifier = Modifier.fillMaxWidth(),
-                            colors = TextFieldDefaults.colors(
-                                focusedContainerColor = MaterialTheme.colorScheme.surfaceContainer,
-                                unfocusedContainerColor = MaterialTheme.colorScheme.surfaceContainerLow,
-                                focusedIndicatorColor = Color.Transparent,
-                                unfocusedIndicatorColor = Color.Transparent,
-                                focusedLabelColor = MaterialTheme.colorScheme.primary,
-                                unfocusedLabelColor = MaterialTheme.colorScheme.outline
-                            )
-                        )
-                        DropdownMenu(
-                            expanded = destinationExpanded,
-                            onDismissRequest = { destinationExpanded = false },
-                            modifier = Modifier.fillMaxWidth()
-                        ) {
-                            posList.forEach { option ->
-                                DropdownMenuItem(
-                                    text = { Text(option) },
-                                    onClick = {
-                                        destination = option
-                                        destinationExpanded = false
-                                    }
-                                )
-                            }
-                        }
-                    }
-
-
-                    // 第四行：日期选择框
-                    OutlinedTextField(
-                        value = date,
-                        onValueChange = { date = it },
-                        label = { Text("拼车日期") },
-                        readOnly = true,
-                        trailingIcon = {
-                            IconButton(onClick = {
-                                showDatePickerDialog(context) { selectedDate ->
-                                    date = selectedDate
-                                }
-                            }) {
-                                Icon(Icons.Default.DateRange,
-                                    contentDescription = "Date Picker",
-                                    tint = MaterialTheme.colorScheme.primary
-                                )
-                            }
-                        },
-                        modifier = Modifier.fillMaxWidth(),
-                        colors = TextFieldDefaults.colors(
-                            focusedContainerColor = MaterialTheme.colorScheme.surfaceContainer,
-                            unfocusedContainerColor = MaterialTheme.colorScheme.surfaceContainerLow,
-                            focusedIndicatorColor = Color.Transparent,
-                            unfocusedIndicatorColor = Color.Transparent,
-                            focusedLabelColor = MaterialTheme.colorScheme.primary,
-                            unfocusedLabelColor = MaterialTheme.colorScheme.outline
-                        )
-                    )
-
-                    // 第五行：最早出发时间选择框
-                    OutlinedTextField(
-                        value = earliestTime,
-                        onValueChange = { earliestTime = it },
-                        label = { Text("最早出发时间") },
-                        readOnly = true,
-                        trailingIcon = {
-                            IconButton(onClick = {
-                                showTimePickerDialog(context) { selectedTime ->
-                                    earliestTime = selectedTime
-                                }
-                            }) {
-                                Icon(
-                                    Icons.Default.DateRange,
-                                    contentDescription = "Time Picker",
-                                    tint = MaterialTheme.colorScheme.primary
-                                )
-                            }
-                        },
-                        modifier = Modifier.fillMaxWidth(),
-                        colors = TextFieldDefaults.colors(
-                            focusedContainerColor = MaterialTheme.colorScheme.surfaceContainer,
-                            unfocusedContainerColor = MaterialTheme.colorScheme.surfaceContainerLow,
-                            focusedIndicatorColor = Color.Transparent,
-                            unfocusedIndicatorColor = Color.Transparent,
-                            focusedLabelColor = MaterialTheme.colorScheme.primary,
-                            unfocusedLabelColor = MaterialTheme.colorScheme.outline
-                        )
-                    )
-
-                    // 第六行：最晚出发时间选择框
-                    OutlinedTextField(
-                        value = latestTime,
-                        onValueChange = { latestTime = it },
-                        label = { Text("最晚出发时间") },
-                        readOnly = true,
-                        trailingIcon = {
-                            IconButton(onClick = {
-                                showTimePickerDialog(context) { selectedTime ->
-                                    latestTime = selectedTime
-                                }
-                            }) {
-                                Icon(
-                                    Icons.Default.DateRange,
-                                    contentDescription = "Time Picker",
-                                    tint = MaterialTheme.colorScheme.primary
-                                )
-                            }
-                        },
-                        modifier = Modifier.fillMaxWidth(),
-                        colors = TextFieldDefaults.colors(
-                            focusedContainerColor = MaterialTheme.colorScheme.surfaceContainer,
-                            unfocusedContainerColor = MaterialTheme.colorScheme.surfaceContainerLow,
-                            focusedIndicatorColor = Color.Transparent,
-                            unfocusedIndicatorColor = Color.Transparent,
-                            focusedLabelColor = MaterialTheme.colorScheme.primary,
-                            unfocusedLabelColor = MaterialTheme.colorScheme.outline
-                        )
-                    )
-
-                    // 第七行：备注
-                    OutlinedTextField(
-                        value = notes,
-                        onValueChange = { notes = it },
-                        label = { Text("备注") },
-                        modifier = Modifier.fillMaxWidth(),
-                        keyboardOptions = KeyboardOptions.Default,
-                        keyboardActions = KeyboardActions.Default,
-                        colors = TextFieldDefaults.colors(
-                            focusedContainerColor = MaterialTheme.colorScheme.surfaceContainer,
-                            unfocusedContainerColor = MaterialTheme.colorScheme.surfaceContainerLow,
-                            focusedIndicatorColor = Color.Transparent,
-                            unfocusedIndicatorColor = Color.Transparent,
-                            focusedLabelColor = MaterialTheme.colorScheme.primary,
-                            unfocusedLabelColor = MaterialTheme.colorScheme.outline
-                        )
-                    )
-                }
-            }
-            // 第八行：提交按钮
-            Button(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(54.dp)
-                    .clip(RoundedCornerShape(16.dp)),
-                shape = RoundedCornerShape(16.dp), colors = ButtonDefaults.buttonColors(
-                    containerColor = MaterialTheme.colorScheme.primary
-                ),
-                onClick = {
-                    // 检查
-                    if (departure.isEmpty()) {
-                        Toast.makeText(context, "出发地为空", Toast.LENGTH_SHORT).show()
-                        return@Button
-                    } else if (destination.isEmpty()) {
-                        Toast.makeText(context, "目的地为空", Toast.LENGTH_SHORT).show()
-                        return@Button
-                    } else if (date.isEmpty()) {
-                        Toast.makeText(context, "日期为空", Toast.LENGTH_SHORT).show()
-                        return@Button
-                    } else if (earliestTime.isEmpty()) {
-                        Toast.makeText(context, "最早出发时间为空", Toast.LENGTH_SHORT)
-                            .show()
-                        return@Button
-                    } else if (latestTime.isEmpty()) {
-                        Toast.makeText(context, "最晚出发时间为空", Toast.LENGTH_SHORT)
-                            .show()
-                        return@Button
-                    } else if (notes.length >= 100) {
-                        Toast.makeText(context, "备注长于100字符", Toast.LENGTH_SHORT)
-                            .show()
-                        return@Button
-                    } else if (departure == destination) {
-                        Toast.makeText(context, "出发地和起始地相同", Toast.LENGTH_SHORT)
-                            .show()
-                        return@Button
-                    }
-
-                    scope.launch {
-                        try {
-                            val response = APISERVICCE.publish(
-                                request = PublishRequest(
-                                    departure,
-                                    destination,
-                                    date,
-                                    earliestTime,
-                                    latestTime
-//                                    notes
-                                )
-                            )
-                            if (response.isSuccessful && response.body()?.code == 201) {
-                                // 成功
-                                Toast.makeText(context, "发布成功", Toast.LENGTH_SHORT)
-                                    .show()
-                                var id = response.body()?.data?.order_id
-                                // 成功后跳转到 详情界面
-                            navController.navigate("tripDetail/$id") {
-                                popUpTo("createTrip") { inclusive = true } // 清除发布页面
-                            }
-                            } else {
-                                // 发布失败
-                                Toast.makeText(
-                                    context,
-                                    response.body()?.message,
-                                    Toast.LENGTH_SHORT
-                                ).show()
-                            }
-                        } catch (e: Exception) {
-                            // 网络请求异常
-                            Toast.makeText(
-                                context,
-                                "发布失败，请检查网络连接",
-                                Toast.LENGTH_SHORT
-                            ).show()
-                            println(e.message)
-                        }
-                    }
-                }
-            ) {
-                Text(
-                    "发布",
-                    style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold)
+                Icon(
+                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                    contentDescription = "返回",
+                    tint = MaterialTheme.colorScheme.surfaceTint
                 )
             }
         }
+        Box(
+            modifier = Modifier
+                .fillMaxSize(),
+            contentAlignment = Alignment.Center
+        ) {
+
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .verticalScroll(rememberScrollState())
+                    .padding(horizontal = 16.dp, vertical = 24.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+
+                Card(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 16.dp),
+                    shape = RoundedCornerShape(24.dp),
+                    elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),
+                    colors = CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.surfaceContainer
+                    )
+                ) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(16.dp),
+                        verticalArrangement = Arrangement.spacedBy(16.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        // 第一行：文字“拼车需求填写”
+                        Text(
+                            text = "拼车需求填写",
+                            style = MaterialTheme.typography.headlineMedium.copy(fontWeight = FontWeight.Bold),
+                            color = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.padding(bottom = 8.dp)
+                        )
+
+                        Column(
+                            modifier = Modifier,
+                            verticalArrangement = Arrangement.spacedBy(16.dp)
+                        ) {
+                            // 第二行：出发地多选框
+                            OutlinedTextField(
+                                value = departure,
+                                onValueChange = { departure = it },
+                                label = { Text("出发地") },
+                                readOnly = true,
+                                trailingIcon = {
+                                    IconButton(onClick = { departureExpanded = true }) {
+                                        Icon(
+                                            Icons.Default.ArrowDropDown,
+                                            contentDescription = "Dropdown",
+                                            tint = MaterialTheme.colorScheme.primary
+                                        )
+                                    }
+                                },
+                                modifier = Modifier.fillMaxWidth(),
+                                colors = TextFieldDefaults.colors(
+                                    focusedContainerColor = MaterialTheme.colorScheme.surfaceContainer,
+                                    unfocusedContainerColor = MaterialTheme.colorScheme.surfaceContainerLow,
+                                    focusedIndicatorColor = Color.Transparent,
+                                    unfocusedIndicatorColor = Color.Transparent,
+                                    focusedLabelColor = MaterialTheme.colorScheme.primary,
+                                    unfocusedLabelColor = MaterialTheme.colorScheme.outline
+                                )
+                            )
+                            DropdownMenu(
+                                expanded = departureExpanded,
+                                onDismissRequest = { departureExpanded = false },
+                                modifier = Modifier.fillMaxWidth()
+                            ) {
+                                posList.forEach { option ->
+                                    DropdownMenuItem(
+                                        text = { Text(option) },
+                                        onClick = {
+                                            departure = option
+                                            departureExpanded = false
+                                        }
+                                    )
+                                }
+                            }
+                        }
+
+                        Column(
+                            modifier = Modifier,
+                            verticalArrangement = Arrangement.spacedBy(16.dp)
+                        ) {
+                            // 第三行：目的地多选框
+                            OutlinedTextField(
+                                value = destination,
+                                onValueChange = { destination = it },
+                                label = { Text("目的地") },
+                                readOnly = true,
+                                trailingIcon = {
+                                    IconButton(onClick = { destinationExpanded = true }) {
+                                        Icon(
+                                            Icons.Default.ArrowDropDown,
+                                            contentDescription = "Dropdown",
+                                            tint = MaterialTheme.colorScheme.primary
+                                        )
+                                    }
+                                },
+                                modifier = Modifier.fillMaxWidth(),
+                                colors = TextFieldDefaults.colors(
+                                    focusedContainerColor = MaterialTheme.colorScheme.surfaceContainer,
+                                    unfocusedContainerColor = MaterialTheme.colorScheme.surfaceContainerLow,
+                                    focusedIndicatorColor = Color.Transparent,
+                                    unfocusedIndicatorColor = Color.Transparent,
+                                    focusedLabelColor = MaterialTheme.colorScheme.primary,
+                                    unfocusedLabelColor = MaterialTheme.colorScheme.outline
+                                )
+                            )
+                            DropdownMenu(
+                                expanded = destinationExpanded,
+                                onDismissRequest = { destinationExpanded = false },
+                                modifier = Modifier.fillMaxWidth()
+                            ) {
+                                posList.forEach { option ->
+                                    DropdownMenuItem(
+                                        text = { Text(option) },
+                                        onClick = {
+                                            destination = option
+                                            destinationExpanded = false
+                                        }
+                                    )
+                                }
+                            }
+                        }
+
+
+                        // 第四行：日期选择框
+                        OutlinedTextField(
+                            value = date,
+                            onValueChange = { date = it },
+                            label = { Text("拼车日期") },
+                            readOnly = true,
+                            trailingIcon = {
+                                IconButton(onClick = {
+                                    showDatePickerDialog(context) { selectedDate ->
+                                        date = selectedDate
+                                    }
+                                }) {
+                                    Icon(Icons.Default.DateRange,
+                                        contentDescription = "Date Picker",
+                                        tint = MaterialTheme.colorScheme.primary
+                                    )
+                                }
+                            },
+                            modifier = Modifier.fillMaxWidth(),
+                            colors = TextFieldDefaults.colors(
+                                focusedContainerColor = MaterialTheme.colorScheme.surfaceContainer,
+                                unfocusedContainerColor = MaterialTheme.colorScheme.surfaceContainerLow,
+                                focusedIndicatorColor = Color.Transparent,
+                                unfocusedIndicatorColor = Color.Transparent,
+                                focusedLabelColor = MaterialTheme.colorScheme.primary,
+                                unfocusedLabelColor = MaterialTheme.colorScheme.outline
+                            )
+                        )
+
+                        // 第五行：最早出发时间选择框
+                        OutlinedTextField(
+                            value = earliestTime,
+                            onValueChange = { earliestTime = it },
+                            label = { Text("最早出发时间") },
+                            readOnly = true,
+                            trailingIcon = {
+                                IconButton(onClick = {
+                                    showTimePickerDialog(context) { selectedTime ->
+                                        earliestTime = selectedTime
+                                    }
+                                }) {
+                                    Icon(
+                                        Icons.Default.DateRange,
+                                        contentDescription = "Time Picker",
+                                        tint = MaterialTheme.colorScheme.primary
+                                    )
+                                }
+                            },
+                            modifier = Modifier.fillMaxWidth(),
+                            colors = TextFieldDefaults.colors(
+                                focusedContainerColor = MaterialTheme.colorScheme.surfaceContainer,
+                                unfocusedContainerColor = MaterialTheme.colorScheme.surfaceContainerLow,
+                                focusedIndicatorColor = Color.Transparent,
+                                unfocusedIndicatorColor = Color.Transparent,
+                                focusedLabelColor = MaterialTheme.colorScheme.primary,
+                                unfocusedLabelColor = MaterialTheme.colorScheme.outline
+                            )
+                        )
+
+                        // 第六行：最晚出发时间选择框
+                        OutlinedTextField(
+                            value = latestTime,
+                            onValueChange = { latestTime = it },
+                            label = { Text("最晚出发时间") },
+                            readOnly = true,
+                            trailingIcon = {
+                                IconButton(onClick = {
+                                    showTimePickerDialog(context) { selectedTime ->
+                                        latestTime = selectedTime
+                                    }
+                                }) {
+                                    Icon(
+                                        Icons.Default.DateRange,
+                                        contentDescription = "Time Picker",
+                                        tint = MaterialTheme.colorScheme.primary
+                                    )
+                                }
+                            },
+                            modifier = Modifier.fillMaxWidth(),
+                            colors = TextFieldDefaults.colors(
+                                focusedContainerColor = MaterialTheme.colorScheme.surfaceContainer,
+                                unfocusedContainerColor = MaterialTheme.colorScheme.surfaceContainerLow,
+                                focusedIndicatorColor = Color.Transparent,
+                                unfocusedIndicatorColor = Color.Transparent,
+                                focusedLabelColor = MaterialTheme.colorScheme.primary,
+                                unfocusedLabelColor = MaterialTheme.colorScheme.outline
+                            )
+                        )
+
+                        // 第七行：备注
+                        OutlinedTextField(
+                            value = notes,
+                            onValueChange = { notes = it },
+                            label = { Text("备注") },
+                            modifier = Modifier.fillMaxWidth(),
+                            keyboardOptions = KeyboardOptions.Default,
+                            keyboardActions = KeyboardActions.Default,
+                            colors = TextFieldDefaults.colors(
+                                focusedContainerColor = MaterialTheme.colorScheme.surfaceContainer,
+                                unfocusedContainerColor = MaterialTheme.colorScheme.surfaceContainerLow,
+                                focusedIndicatorColor = Color.Transparent,
+                                unfocusedIndicatorColor = Color.Transparent,
+                                focusedLabelColor = MaterialTheme.colorScheme.primary,
+                                unfocusedLabelColor = MaterialTheme.colorScheme.outline
+                            )
+                        )
+                    }
+                }
+                // 第八行：提交按钮
+                Button(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(54.dp)
+                        .clip(RoundedCornerShape(16.dp)),
+                    shape = RoundedCornerShape(16.dp), colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.primary
+                    ),
+                    onClick = {
+                        // 检查
+                        if (departure.isEmpty()) {
+                            Toast.makeText(context, "出发地为空", Toast.LENGTH_SHORT).show()
+                            return@Button
+                        } else if (destination.isEmpty()) {
+                            Toast.makeText(context, "目的地为空", Toast.LENGTH_SHORT).show()
+                            return@Button
+                        } else if (date.isEmpty()) {
+                            Toast.makeText(context, "日期为空", Toast.LENGTH_SHORT).show()
+                            return@Button
+                        } else if (earliestTime.isEmpty()) {
+                            Toast.makeText(context, "最早出发时间为空", Toast.LENGTH_SHORT)
+                                .show()
+                            return@Button
+                        } else if (latestTime.isEmpty()) {
+                            Toast.makeText(context, "最晚出发时间为空", Toast.LENGTH_SHORT)
+                                .show()
+                            return@Button
+                        } else if (notes.length >= 100) {
+                            Toast.makeText(context, "备注长于100字符", Toast.LENGTH_SHORT)
+                                .show()
+                            return@Button
+                        } else if (departure == destination) {
+                            Toast.makeText(context, "出发地和起始地相同", Toast.LENGTH_SHORT)
+                                .show()
+                            return@Button
+                        }
+
+                        scope.launch {
+                            try {
+                                val response = APISERVICCE.publish(
+                                    request = PublishRequest(
+                                        departure,
+                                        destination,
+                                        date,
+                                        earliestTime,
+                                        latestTime
+//                                    notes
+                                    )
+                                )
+                                if (response.isSuccessful && response.body()?.code == 201) {
+                                    // 成功
+                                    Toast.makeText(context, "发布成功", Toast.LENGTH_SHORT)
+                                        .show()
+                                    val id = response.body()?.data?.order_id
+                                    // 成功后跳转到 详情界面
+                                    navController.navigate("tripDetail/$id") {
+                                        popUpTo("createTrip") { inclusive = true } // 清除发布页面
+                                    }
+                                } else {
+                                    // 发布失败
+                                    Toast.makeText(
+                                        context,
+                                        response.body()?.message,
+                                        Toast.LENGTH_SHORT
+                                    ).show()
+                                }
+                            } catch (e: Exception) {
+                                // 网络请求异常
+                                Toast.makeText(
+                                    context,
+                                    "发布失败，请检查网络连接",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            }
+                        }
+                    }
+                ) {
+                    Text(
+                        "发布",
+                        style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold)
+                    )
+                }
+            }
+        }
     }
+
 }
 
 fun showDatePickerDialog(
@@ -447,8 +475,9 @@ fun showDatePickerDialog(
     onDateSelected: (String) -> Unit
 ) {
     val calendar = Calendar.getInstance()
-    DatePickerDialog(
+    val datePickerDialog = DatePickerDialog(
         context,
+        R.style.CustomDatePickerTheme, // 使用自定义主题
         { _, year, month, dayOfMonth ->
             val selectedDate = "$year-${month + 1}-$dayOfMonth"
             onDateSelected(selectedDate)
@@ -456,7 +485,13 @@ fun showDatePickerDialog(
         calendar.get(Calendar.YEAR),
         calendar.get(Calendar.MONTH),
         calendar.get(Calendar.DAY_OF_MONTH)
-    ).show()
+    )
+    // 设置最小日期为当前日期
+    datePickerDialog.datePicker.minDate = System.currentTimeMillis()
+    // 设置最大日期为一年后的日期
+    datePickerDialog.datePicker.maxDate = System.currentTimeMillis() + 365L * 24 * 60 * 60 * 1000
+
+    datePickerDialog.show()
 }
 
 fun showTimePickerDialog(
@@ -466,6 +501,7 @@ fun showTimePickerDialog(
     val calendar = Calendar.getInstance()
     TimePickerDialog(
         context,
+        R.style.CustomDatePickerTheme, // 使用自定义主题
         { _, hourOfDay, minute ->
             val selectedTime = String.format("%02d:%02d", hourOfDay, minute)
             onTimeSelected(selectedTime)

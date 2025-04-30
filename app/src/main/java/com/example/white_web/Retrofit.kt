@@ -2,6 +2,8 @@ package com.example.white_web
 
 import DetailResponse
 import GetPosResponse
+import JoinLeaveRedponse
+import JoinLeaveRequest
 import PublishRequest
 import PublishResponse
 import com.example.white_web.home.LookResponse
@@ -39,7 +41,7 @@ interface ApiService {
     @GET("api/orders/search/{keyword}")
     suspend fun getSearchResults(@Path("keyword") keyword: String): Response<AllOrdersResponse>
 
-    @GET("/api/getPos")
+    @GET("/api/getpos")
     suspend fun getPos(): Response<GetPosResponse>
 
     @POST("/api/orders/add")
@@ -47,6 +49,12 @@ interface ApiService {
 
     @GET("/api/orders/{order_id}")
     suspend fun detail(@Path("order_id") orderId: Int): Response<DetailResponse>
+
+    @POST("/api/orders/join")
+    suspend fun joinOrder(@Header("Authorization") token: String? = TOKEN, @Body request: JoinLeaveRequest): Response<JoinLeaveRedponse>
+
+    @POST("/api/orders/leave")
+    suspend fun leaveOrder(@Header("Authorization") token: String? = TOKEN, @Body request: JoinLeaveRequest): Response<JoinLeaveRedponse>
 }
 
 val APISERVICCE = retrofit.create(ApiService::class.java)
