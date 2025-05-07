@@ -70,27 +70,72 @@ data class PublishResponse(
 @Composable
 fun PublishScreen(navController: NavHostController) {
     var posList by remember { mutableStateOf<List<String>?>(null) }
+    var errorMsg by remember { mutableStateOf<String?>("载入中···") }
 
-//    LaunchedEffect(Unit) {
-//        try {
-//            val response = APISERVICCE.getPos()
-//            if (response.isSuccessful && response.body()?.code == 200) {
-//                posList = response.body()?.data?.table
-//            } else {
-//                // 处理错误
-//                println("Error: ${response.body()?.message}")
-//            }
-//        } catch (e: Exception) {
-//            // 处理异常
-//            println("Network error: ${e.message}")
-//        }
-//    }
-    posList = listOf("选项1", "选项2", "选项3")
+    LaunchedEffect(Unit) {
+        try {
+            val response = APISERVICCE.getPos()
+            if (response.isSuccessful && response.body()?.code == 200) {
+                posList = response.body()?.data?.table
+            } else {
+                // 处理错误
+                errorMsg = response.body()?.message
+            }
+        } catch (e: Exception) {
+            // 处理异常
+            errorMsg = e.message
+        }
+    }
+//    posList = listOf("选项1", "选项2", "选项3")
 
     if (posList != null) {
         DisplayPublish(posList!!, navController)
     } else {
-        Text("载入中...")
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(
+                    brush = Brush.verticalGradient(
+                        colors = listOf(
+                            MaterialTheme.colorScheme.surface,
+                            MaterialTheme.colorScheme.secondaryContainer
+                        )
+                    )
+                )
+                .windowInsetsPadding(WindowInsets.navigationBars)
+        ) {
+            // 顶部栏
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 12.dp),
+                horizontalArrangement = Arrangement.Start, // 将内容对齐到左侧
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                // 返回按钮
+                IconButton(
+                    onClick = { navController.popBackStack() }
+                ) {
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                        contentDescription = "返回",
+                        tint = MaterialTheme.colorScheme.surfaceTint
+                    )
+                }
+            }
+            Box(
+                modifier = Modifier
+                    .fillMaxSize(),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = "$errorMsg",
+                    style = MaterialTheme.typography.headlineMedium.copy(fontWeight = FontWeight.Bold),
+                    color = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.padding(bottom = 8.dp)
+                )
+            }
+        }
     }
 }
 

@@ -57,9 +57,22 @@ data class JoinLeaveRedponse(
     val message: String
 )
 
+data class UserDetailResponse(
+    val code: Int,
+    val message: String,
+    val data: Data?
+) {
+    data class Data(
+        val phonenumber: String,
+        val usertype: String
+    )
+}
+
 @Composable
 fun DetailScreen(orderId: Int, navController: NavHostController) {
     var detailData by remember { mutableStateOf<DetailData?>(null) }
+    var phonenumber by remember { mutableStateOf<String?>(null) }
+    var errorMsg by remember { mutableStateOf<String?>("载入中···") }
     val context = LocalContext.current
 
     LaunchedEffect(Unit) {
@@ -67,25 +80,85 @@ fun DetailScreen(orderId: Int, navController: NavHostController) {
             val response = APISERVICCE.detail(orderId)
             if (response.isSuccessful && response.body()?.code == 200) {
                 detailData = response.body()?.data
+
+                try {
+                    val response2 = APISERVICCE.getUserDetail(detailData!!.user1)
+                    if (response2.isSuccessful && response2.body()?.code == 200) {
+                        phonenumber = response2.body()?.data?.phonenumber
+                    } else {
+                        // 处理错误
+                        errorMsg = response.body()?.message
+                    }
+                } catch (e: Exception) {
+                    // 处理异常
+                    errorMsg = e.message
+                }
+
             } else {
                 // 处理错误
-                Toast.makeText(context, response.body()?.message, Toast.LENGTH_SHORT).show()
+                errorMsg = response.body()?.message
             }
+
         } catch (e: Exception) {
             // 处理异常
-            Toast.makeText(context, "获取详情失败，请检查网络连接", Toast.LENGTH_SHORT).show()
+            errorMsg = e.message
         }
+
     }
 //    detailData = DetailData(0,"未登录", "","","", "嘉定校区", "上海虹桥火车站", "2024-3-30", "5:30", "6:30")
 
-    if (detailData != null) {
-        DisplayDetail(detailData!!, navController)
+    if (detailData != null && phonenumber != null) {
+        DisplayDetail(detailData!!, navController, phonenumber!!)
     } else {
-        Text("载入中...")
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(
+                    brush = Brush.verticalGradient(
+                        colors = listOf(
+                            MaterialTheme.colorScheme.surface,
+                            MaterialTheme.colorScheme.secondaryContainer
+                        )
+                    )
+                )
+                .windowInsetsPadding(WindowInsets.navigationBars)
+        ) {
+            // 顶部栏
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 12.dp),
+                horizontalArrangement = Arrangement.Start, // 将内容对齐到左侧
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                // 返回按钮
+                IconButton(
+                    onClick = { navController.popBackStack() }
+                ) {
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                        contentDescription = "返回",
+                        tint = MaterialTheme.colorScheme.surfaceTint
+                    )
+                }
+            }
+            Box(
+                modifier = Modifier
+                    .fillMaxSize(),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = "$errorMsg",
+                    style = MaterialTheme.typography.headlineMedium.copy(fontWeight = FontWeight.Bold),
+                    color = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.padding(bottom = 8.dp)
+                )
+            }
+        }
     }
 }
 @Composable
-fun DisplayDetail(detailData: DetailData, navController: NavHostController) {
+fun DisplayDetail(detailData: DetailData, navController: NavHostController, phonenumber: String) {
 
     val userCount = listOfNotNull(
         detailData.user1.takeIf { it.isNotBlank() },
@@ -324,8 +397,7 @@ fun DisplayDetail(detailData: DetailData, navController: NavHostController) {
 
                         // 第八行：电话
                         OutlinedTextField(
-//                        value = detailData.telephony,
-                            value = "未实现",
+                            value = phonenumber,
                             onValueChange = {},
                             label = { Text("联系方式") },
                             readOnly = true,
@@ -397,7 +469,7 @@ fun DisplayDetail(detailData: DetailData, navController: NavHostController) {
                                             Toast.makeText(context, "加入成功", Toast.LENGTH_SHORT)
                                                 .show()
                                             navController.popBackStack()
-                                            navController.navigate("tripDetail/$detailData.order_id")
+                                            navController.navigate("tripDetail/${detailData.order_id}")
                                         }
                                         else {
                                             // 离开成功后，如果还有人跳转到详情界面 否则退出
@@ -405,7 +477,7 @@ fun DisplayDetail(detailData: DetailData, navController: NavHostController) {
                                                 Toast.makeText(context, "退出成功", Toast.LENGTH_SHORT)
                                                     .show()
                                                 navController.popBackStack()
-                                                navController.navigate("tripDetail/$detailData.order_id")
+                                                navController.navigate("tripDetail/${detailData.order_id}")
                                             }
                                             else {
                                                 Toast.makeText(context, "订单已删除", Toast.LENGTH_SHORT)

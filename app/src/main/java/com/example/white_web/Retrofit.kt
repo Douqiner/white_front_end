@@ -6,6 +6,7 @@ import JoinLeaveRedponse
 import JoinLeaveRequest
 import PublishRequest
 import PublishResponse
+import UserDetailResponse
 import com.example.white_web.home.LookResponse
 import com.example.white_web.home.AllOrdersResponse
 import retrofit2.Response
@@ -49,6 +50,9 @@ interface ApiService {
 
     @GET("/api/orders/{order_id}")
     suspend fun detail(@Path("order_id") orderId: Int): Response<DetailResponse>
+
+    @GET("/api/user/{username}")
+    suspend fun getUserDetail(@Path("username") username: String): Response<UserDetailResponse>
 
     @POST("/api/orders/join")
     suspend fun joinOrder(@Header("Authorization") token: String? = TOKEN, @Body request: JoinLeaveRequest): Response<JoinLeaveRedponse>

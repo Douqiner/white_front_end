@@ -1,6 +1,7 @@
 package com.example.white_web.home
 
 import android.annotation.SuppressLint
+import android.widget.Toast
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.expandIn
@@ -39,6 +40,7 @@ import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material.icons.filled.Star
@@ -54,6 +56,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -241,6 +244,23 @@ fun HomePage(
     // 当搜索状态改变时清空错误
     LaunchedEffect(isSearchActive) {
         viewModel.clearError()
+    }
+
+    // 自动刷新
+    val context = LocalContext.current
+    // 监听导航目标的变化
+    DisposableEffect(navController) {
+        val listener = NavController.OnDestinationChangedListener { _, destination, _ ->
+            // 检查是否返回到当前页面
+            if (destination.route == "home") {
+                // 触发刷新
+                viewModel.fetchOrders()
+            }
+        }
+        navController?.addOnDestinationChangedListener(listener)
+        onDispose {
+            navController?.removeOnDestinationChangedListener(listener)
+        }
     }
 
     // 计算按钮可见性
@@ -489,6 +509,38 @@ fun HomePage(
                     Icon(
                         imageVector = Icons.Default.LocationOn,  // 使用订单/列表图标
                         contentDescription = "正在进行的订单",
+                        modifier = Modifier.size(26.dp),
+                        tint = MaterialTheme.colorScheme.secondary
+                    )
+                }
+            }
+            // 刷新按钮
+            Box(
+                modifier = Modifier
+                    .align(Alignment.TopEnd)
+                    .padding(end = 142.dp, top = 18.dp)
+                    .alpha(buttonsAlpha)
+            ) {
+                FloatingActionButton(
+                    onClick = {
+                        viewModel.fetchOrders()
+                        Toast.makeText(
+                            context,
+                            "刷新成功",
+                            Toast.LENGTH_SHORT
+                        ).show();
+                              },
+                    modifier = Modifier.size(50.dp),
+                    shape = CircleShape,
+                    containerColor = MaterialTheme.colorScheme.secondaryContainer,
+                    contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
+                    elevation = FloatingActionButtonDefaults.elevation(
+                        defaultElevation = 8.dp, pressedElevation = 12.dp
+                    )
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Refresh,
+                        contentDescription = "刷新",
                         modifier = Modifier.size(26.dp),
                         tint = MaterialTheme.colorScheme.secondary
                     )
