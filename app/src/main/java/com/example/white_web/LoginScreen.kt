@@ -56,6 +56,7 @@ data class LoginResponse(
     data class Data(
         val token: String,
         val username: String,
+        val usertype: Int
     )
 }
 
@@ -212,6 +213,7 @@ fun LoginScreen(navController: NavHostController) {
                                 // 登录成功
                                 USERNAME = response.body()?.data?.username
                                 TOKEN = response.body()?.data?.token
+                                USERTYPE = response.body()?.data?.usertype
                                 Toast.makeText(context, "登录成功", Toast.LENGTH_SHORT)
                                     .show()
                                 // 登录成功后跳转到 HomeScreen 并清除登录页面

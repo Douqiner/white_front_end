@@ -28,6 +28,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.example.white_web.APISERVICCE
 import com.example.white_web.R
+import com.example.white_web.USERTYPE
 import com.example.white_web.ui.theme.White_webTheme
 import kotlinx.coroutines.launch
 import java.util.*
@@ -48,7 +49,7 @@ data class PublishRequest(
     val date: String,
     val earliest_departure_time: String,
     val latest_departure_time: String,
-//    val notes: String
+    val remark: String
 )
 
 data class PublishResponse(
@@ -436,6 +437,10 @@ fun DisplayPublish(posList: List<String>, navController: NavHostController) {
                         containerColor = MaterialTheme.colorScheme.primary
                     ),
                     onClick = {
+                        if (USERTYPE != 1) {
+                            Toast.makeText(context, "该用户类型不能发布拼单", Toast.LENGTH_SHORT).show()
+                            return@Button
+                        }
                         // 检查
                         if (departure.isEmpty()) {
                             Toast.makeText(context, "出发地为空", Toast.LENGTH_SHORT).show()
@@ -472,8 +477,8 @@ fun DisplayPublish(posList: List<String>, navController: NavHostController) {
                                         destination,
                                         date,
                                         earliestTime,
-                                        latestTime
-//                                    notes
+                                        latestTime,
+                                        notes
                                     )
                                 )
                                 if (response.isSuccessful && response.body()?.code == 201) {

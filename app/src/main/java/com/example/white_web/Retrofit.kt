@@ -24,6 +24,7 @@ private val retrofit = Retrofit.Builder()
     .build()
 
 var USERNAME : String? = "未登录"
+var USERTYPE : Int? = -1
 var TOKEN : String? = ""
 
 interface ApiService {

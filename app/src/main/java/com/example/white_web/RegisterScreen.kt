@@ -491,6 +491,7 @@ fun RegisterScreen(navController: NavHostController) {
                                     // 注册并登录成功
                                     USERNAME = response.body()?.data?.username
                                     TOKEN = response.body()?.data?.token
+                                    USERTYPE = userType
                                     Toast.makeText(context, "注册成功", Toast.LENGTH_SHORT).show()
                                     // 注册成功后跳转到 HomePage 并清除注册页面
                                     navController.navigate("home") {

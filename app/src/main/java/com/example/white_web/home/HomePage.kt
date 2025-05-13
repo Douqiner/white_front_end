@@ -88,6 +88,7 @@ import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.white_web.APISERVICCE
+import com.example.white_web.USERTYPE
 import com.example.white_web.ui.theme.White_webTheme
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -129,11 +130,13 @@ data class OrderItem(
     val user2: String?,
     val user3: String?,
     val user4: String?,
+    val driver: String?,
     val departure: String,
     val destination: String,
     val date: String,
     val earliest_departure_time: String,
-    val latest_departure_time: String
+    val latest_departure_time: String,
+    val remark: String
 )
 
 // 辅助函数：格式化日期和时间为合适字符串
@@ -202,10 +205,10 @@ fun convertOrdersToRideShareItems(response: AllOrdersResponse): List<RideShareIt
             currentPeople = currentPeople,
             targetPeople = 4,  // 假设目标是4人拼车
             expectedPrice = "预估中...",  // 需要额外计算
-            driverName = order.user1,  // 假设第一个用户是司机
-            driverRating = 4.5f,  // 假设默认评分
-            carType = "舒适型",  // 示例数据
-            tags = listOf("准时")  // 示例标签
+            driverName = if (order.driver.isNullOrEmpty()) "无" else order.driver,  // 司机
+            driverRating = if (order.driver.isNullOrEmpty()) 0f else 4.5f,  // 假设默认评分
+            carType = if (order.driver.isNullOrEmpty()) "无" else "舒适型",  // 示例数据
+            tags = if (order.driver.isNullOrEmpty()) listOf("无") else listOf("准时")  // 示例标签
         )
     }
 }
@@ -573,29 +576,32 @@ fun HomePage(
                 }
             }
 
-            // 新建拼车按钮 - 底部中央
-            Box(
-                modifier = Modifier
-                    .align(Alignment.BottomCenter)
-                    .padding(bottom = 24.dp)
-                    .alpha(buttonsAlpha)
-            ) {
-                FloatingActionButton(
-                    onClick = { navController?.navigate("createTrip") },
-                    modifier = Modifier.size(56.dp),
-                    shape = CircleShape,
-                    containerColor = MaterialTheme.colorScheme.primaryContainer,
-                    contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
-                    elevation = FloatingActionButtonDefaults.elevation(
-                        defaultElevation = 8.dp, pressedElevation = 12.dp
-                    )
+            if (USERTYPE == 1)
+            {
+                // 新建拼车按钮 - 底部中央
+                Box(
+                    modifier = Modifier
+                        .align(Alignment.BottomCenter)
+                        .padding(bottom = 24.dp)
+                        .alpha(buttonsAlpha)
                 ) {
-                    Icon(
-                        imageVector = Icons.Default.Add,
-                        contentDescription = "新建拼车",
-                        modifier = Modifier.size(32.dp),
-                        tint = MaterialTheme.colorScheme.primary
-                    )
+                    FloatingActionButton(
+                        onClick = { navController?.navigate("createTrip") },
+                        modifier = Modifier.size(56.dp),
+                        shape = CircleShape,
+                        containerColor = MaterialTheme.colorScheme.primaryContainer,
+                        contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                        elevation = FloatingActionButtonDefaults.elevation(
+                            defaultElevation = 8.dp, pressedElevation = 12.dp
+                        )
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Add,
+                            contentDescription = "新建拼车",
+                            modifier = Modifier.size(32.dp),
+                            tint = MaterialTheme.colorScheme.primary
+                        )
+                    }
                 }
             }
         }
