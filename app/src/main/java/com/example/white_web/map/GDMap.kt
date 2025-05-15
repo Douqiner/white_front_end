@@ -37,6 +37,13 @@ fun GDMap(
                 hasInitialized = true
             }
         }
+        mapView.getMap().moveCamera(
+            CameraUpdateFactory.newLatLngZoom(
+                LatLng(31.288611, 121.213333),
+                17f
+            )
+        )
+
     }
 
     // 纯地图视图
@@ -59,28 +66,35 @@ private fun initLocationListener(
     mapView: MapView,
     onLocationChanged: (latitude: Double, longitude: Double) -> Unit
 ) {
-    val locationClient = AMapLocationClient(context)
-    val locationListener = AMapLocationListener { location ->
-        if (location != null && location.errorCode == 0) {
-            val latitude = location.latitude
-            val longitude = location.longitude
-            onLocationChanged(latitude, longitude)
+    try {
+        val locationClient = AMapLocationClient(context)
+        val locationListener = AMapLocationListener { location ->
+            if (location != null && location.errorCode == 0) {
+                val latitude = location.latitude
+                val longitude = location.longitude
 
-            val aMap = mapView.map
+                onLocationChanged(latitude, longitude)
 
-            val myLocationStyle = MyLocationStyle()
-            myLocationStyle.interval(1000)
+                val aMap = mapView.map
 
-            aMap.setMyLocationStyle(myLocationStyle)//设置定位蓝点的Style
-            aMap.setMyLocationEnabled(true)
-            Log.d("Location", "Latitude: $latitude, Longitude: $longitude")
-        } else {
-            Log.e("Location", "Location error: ${location?.errorCode}, ${location?.errorInfo}")
+                val myLocationStyle = MyLocationStyle()
+                myLocationStyle.interval(1000)
+
+                aMap.setMyLocationStyle(myLocationStyle)//设置定位蓝点的Style
+                aMap.setMyLocationEnabled(true)
+                Log.d("Location", "Latitude: $latitude, Longitude: $longitude")
+            } else {
+                Log.e("Location", "Location error: ${location?.errorCode}, ${location?.errorInfo}")
+            }
+        }
+
+        locationClient.apply {
+            setLocationListener(locationListener)
+            startLocation()
         }
     }
-
-    locationClient.apply {
-        setLocationListener(locationListener)
-        startLocation()
+    catch(e:Exception) {
+        Log.e("LocationClient", "Failed to initialize AMapLocationClient", e)
     }
+
 }
