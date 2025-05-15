@@ -89,6 +89,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.white_web.APISERVICCE
 import com.example.white_web.USERTYPE
+import com.example.white_web.map.GDMap
 import com.example.white_web.ui.theme.White_webTheme
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -333,9 +334,13 @@ fun HomePage(
                         )
                     ), contentAlignment = Alignment.Center // 内容居中
             ) {
-                Text(
-                    "地图区域 (需配置高德地图SDK)",
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
+//                Text(
+//                    "地图区域 (需配置高德地图SDK)",
+//                    color = MaterialTheme.colorScheme.onSurfaceVariant
+//                )
+                GDMap(
+                    modifier = Modifier.matchParentSize(),
+                    onLocationUpdated = { /* 可处理其他逻辑 */ }
                 )
             }
 

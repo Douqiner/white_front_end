@@ -60,5 +60,9 @@ dependencies {
     implementation(libs.retrofit)
     implementation(libs.gson.converter)
     implementation(libs.navigation.compose)
+    // 高德地图SDK
+    implementation("com.amap.api:search:9.2.0") // 搜索功能
+    implementation("com.amap.api:location:6.4.7") // 定位功能
+    implementation("com.amap.api:map2d:6.0.0")
 
 }
