@@ -201,7 +201,7 @@ fun convertOrdersToRideShareItems(response: AllOrdersResponse): List<RideShareIt
             id = "${order.order_id}",
             startPoint = order.departure,
             endPoint = order.destination,
-            distance = "计算中...",  // 需要额外的地图服务计算距离
+            distance = "使用高德API计算距离",  // 需要额外的地图服务计算距离
             startTime = timeRange,
             currentPeople = currentPeople,
             targetPeople = 4,  // 假设目标是4人拼车
@@ -536,8 +536,8 @@ fun HomePage(
                             context,
                             "刷新成功",
                             Toast.LENGTH_SHORT
-                        ).show();
-                              },
+                        ).show()
+                    },
                     modifier = Modifier.size(50.dp),
                     shape = CircleShape,
                     containerColor = MaterialTheme.colorScheme.secondaryContainer,
@@ -581,8 +581,7 @@ fun HomePage(
                 }
             }
 
-            if (USERTYPE == 1)
-            {
+            if (USERTYPE == 1) {
                 // 新建拼车按钮 - 底部中央
                 Box(
                     modifier = Modifier
@@ -1010,7 +1009,8 @@ class HomeViewModel : ViewModel() {
             _error.value = null
 
             try {
-                val response = APISERVICCE.getOrders()
+                // 使用新的接口获取未开始的订单
+                val response = APISERVICCE.getNotStartedOrders()
 
                 if (response.isSuccessful) {
                     response.body()?.let { apiResponse ->

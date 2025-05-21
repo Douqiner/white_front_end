@@ -9,11 +9,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.ui.Modifier
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.white_web.ui.theme.White_webTheme
 
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.example.white_web.home.CurrentOrdersScreen
+import com.example.white_web.home.CurrentOrdersViewModel
 import com.example.white_web.home.HomePage
 
 
@@ -56,9 +59,9 @@ fun AppNavigation() {
             val tripId = backStackEntry.arguments?.getString("tripId")?.toIntOrNull()
             DetailScreen(tripId!!, mainNavController)
         }
-//        composable("currentOrders") {
-//            val viewModel = viewModel<CurrentOrdersViewModel>()
-//            CurrentOrdersScreen(mainNavController, viewModel)
-//        }
+        composable("currentOrders") {
+            val viewModel = viewModel<CurrentOrdersViewModel>()
+            CurrentOrdersScreen(mainNavController, viewModel)
+        }
     }
 }

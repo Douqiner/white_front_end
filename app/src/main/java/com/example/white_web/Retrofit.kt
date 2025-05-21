@@ -7,8 +7,14 @@ import JoinLeaveRequest
 import PublishRequest
 import PublishResponse
 import UserDetailResponse
-import com.example.white_web.home.LookResponse
 import com.example.white_web.home.AllOrdersResponse
+import com.example.white_web.home.BaseResponse
+import com.example.white_web.home.ConfirmArrivalResponse
+import com.example.white_web.home.CurrentOrderResponse
+import com.example.white_web.home.DriverRatingRequest
+import com.example.white_web.home.LookResponse
+import com.example.white_web.home.OrderIdRequest
+import com.google.gson.annotations.SerializedName
 import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
@@ -23,9 +29,42 @@ private val retrofit = Retrofit.Builder()
     .addConverterFactory(GsonConverterFactory.create())
     .build()
 
-var USERNAME : String? = "未登录"
-var USERTYPE : Int? = -1
-var TOKEN : String? = ""
+var USERNAME: String? = "未登录"
+var USERTYPE: Int? = -1
+var TOKEN: String? = ""
+
+// 司机评分数据响应
+data class DriverRatingResponse(
+    val code: Int,
+    val message: String,
+    val data: DriverRatingData?
+)
+
+data class DriverRatingData(
+    val username: String,
+    val rating: Float,
+    val rating_count: Int
+)
+
+// 检查用户是否已评分请求
+data class CheckUserRatingRequest(
+    @SerializedName("order_id")
+    val orderId: Int,
+    @SerializedName("driver_username")
+    val driverUsername: String
+)
+
+// 检查用户是否已评分响应
+data class CheckUserRatingResponse(
+    val code: Int,
+    val message: String,
+    val data: CheckUserRatingData?
+)
+
+data class CheckUserRatingData(
+    @SerializedName("has_rated")
+    val hasRated: Boolean
+)
 
 interface ApiService {
     @POST("/api/login")
@@ -47,7 +86,10 @@ interface ApiService {
     suspend fun getPos(): Response<GetPosResponse>
 
     @POST("/api/orders/add")
-    suspend fun publish(@Header("Authorization") token: String? = TOKEN, @Body request: PublishRequest): Response<PublishResponse>
+    suspend fun publish(
+        @Header("Authorization") token: String? = TOKEN,
+        @Body request: PublishRequest
+    ): Response<PublishResponse>
 
     @GET("/api/orders/{order_id}")
     suspend fun detail(@Path("order_id") orderId: Int): Response<DetailResponse>
@@ -56,10 +98,51 @@ interface ApiService {
     suspend fun getUserDetail(@Path("username") username: String): Response<UserDetailResponse>
 
     @POST("/api/orders/join")
-    suspend fun joinOrder(@Header("Authorization") token: String? = TOKEN, @Body request: JoinLeaveRequest): Response<JoinLeaveRedponse>
+    suspend fun joinOrder(
+        @Header("Authorization") token: String? = TOKEN,
+        @Body request: JoinLeaveRequest
+    ): Response<JoinLeaveRedponse>
 
     @POST("/api/orders/leave")
-    suspend fun leaveOrder(@Header("Authorization") token: String? = TOKEN, @Body request: JoinLeaveRequest): Response<JoinLeaveRedponse>
+    suspend fun leaveOrder(
+        @Header("Authorization") token: String? = TOKEN,
+        @Body request: JoinLeaveRequest
+    ): Response<JoinLeaveRedponse>
+
+    // 添加到ApiService接口中
+
+    @GET("/api/user/current-order")
+    suspend fun getCurrentOrder(@Header("Authorization") token: String? = TOKEN): Response<CurrentOrderResponse>
+
+    @POST("/api/order/confirm-arrival")
+    suspend fun confirmArrival(
+        @Header("Authorization") token: String? = TOKEN,
+        @Body request: OrderIdRequest
+    ): Response<ConfirmArrivalResponse>
+
+    @POST("/api/order/confirm-destination")
+    suspend fun confirmDestination(
+        @Header("Authorization") token: String? = TOKEN,
+        @Body request: OrderIdRequest
+    ): Response<BaseResponse>
+
+    @POST("/api/order/rate-driver")
+    suspend fun rateDriver(
+        @Header("Authorization") token: String? = TOKEN,
+        @Body request: DriverRatingRequest
+    ): Response<BaseResponse>
+
+    @GET("/api/user/driver-rating/{username}")
+    suspend fun getDriverRating(@Path("username") username: String): Response<DriverRatingResponse>
+
+    @POST("/api/order/check-user-rating")
+    suspend fun checkUserRating(
+        @Header("Authorization") token: String? = TOKEN,
+        @Body request: CheckUserRatingRequest
+    ): Response<CheckUserRatingResponse>
+
+    @GET("/api/orders/not-started")
+    suspend fun getNotStartedOrders(): Response<AllOrdersResponse>
 }
 
 val APISERVICCE = retrofit.create(ApiService::class.java)
