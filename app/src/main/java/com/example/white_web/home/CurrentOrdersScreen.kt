@@ -651,7 +651,7 @@ fun OrderDetailContent(
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                     Text(
-                        text = "${currentOrder.order.departure} → ${currentOrder.order.destination}",
+                        text = "使用高德API根据出发地（${currentOrder.order.departure}） → 目的地（${currentOrder.order.destination}）绘制",
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -698,8 +698,9 @@ fun OrderDetailContent(
                     DetailRow("订单ID", "#${currentOrder.order.orderId}")
                     DetailRow("出发地", currentOrder.order.departure)
                     DetailRow("目的地", currentOrder.order.destination)
+                    DetailRow("行程距离", "使用高德API根据出发地与目的地计算")
                     DetailRow("日期", formattedDate)
-                    DetailRow("时间段", formattedTimeRange)
+                    DetailRow("预计开始时间", formattedTimeRange)
                     DetailRow("参与人数", "${participants.size}/4")
                     DetailRow("备注", currentOrder.order.remark)
 

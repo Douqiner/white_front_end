@@ -206,10 +206,10 @@ fun convertOrdersToRideShareItems(response: AllOrdersResponse): List<RideShareIt
             currentPeople = currentPeople,
             targetPeople = 4,  // 假设目标是4人拼车
             expectedPrice = "预估中...",  // 需要额外计算
-            driverName = if (order.driver.isNullOrEmpty()) "无" else order.driver,  // 司机
-            driverRating = if (order.driver.isNullOrEmpty()) 0f else 4.5f,  // 假设默认评分
-            carType = if (order.driver.isNullOrEmpty()) "无" else "舒适型",  // 示例数据
-            tags = if (order.driver.isNullOrEmpty()) listOf("无") else listOf("准时")  // 示例标签
+            driverName = if (order.driver.isNullOrEmpty()) "司机未接单" else order.driver,  // 司机
+            driverRating = if (order.driver.isNullOrEmpty()) 0f else 5.0f,  // 假设默认评分
+            carType = if (order.driver.isNullOrEmpty()) "司机无描述" else "舒适型",  // 示例数据
+            tags = if (order.driver.isNullOrEmpty()) listOf() else listOf("准时")  // 示例标签
         )
     }
 }
