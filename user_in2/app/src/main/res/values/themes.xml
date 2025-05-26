@@ -1,0 +1,33 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <!-- Base application theme. -->
+    <style name="Base.Theme.User" parent="Theme.Material3.DayNight.NoActionBar">
+        <!-- Customize your light theme here. -->
+        <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
+    </style>
+
+    <style name="Theme.User" parent="Base.Theme.User" />
+
+    <style name="Theme.White_web" parent="android:Theme.Material.Light.NoActionBar" />
+
+    <style name="CustomDatePickerTheme" parent="android:Theme.Material.Light.Dialog">
+        <!-- 设置对话框的背景颜色 -->
+        <item name="android:windowBackground">@color/white</item>
+        <!-- 设置标题颜色 -->
+        <item name="android:textColorPrimary">@color/blue</item>
+        <!-- 设置按钮颜色 -->
+        <item name="android:textColor">@color/blue</item>
+        <!-- 设置分割线颜色 -->
+        <item name="android:divider">@color/blue</item>
+        <!-- 设置日期和时间选择器的文本颜色 -->
+        <item name="android:textColorSecondary">@color/blue</item>
+        <!-- 指针颜色（强调色） -->
+        <item name="android:colorAccent">@color/blue</item>
+        <!-- 标题栏背景颜色 -->
+        <item name="android:colorPrimary">@color/blue</item>
+        <!-- 标题栏文本颜色 -->
+        <item name="android:colorPrimaryDark">@color/white</item>
+        <!-- 对话框按钮背景颜色 -->
+        <!--    <item name="android:colorButtonNormal">@color/your_button_background_color</item>-->
+
+    </style>
+</resources>
