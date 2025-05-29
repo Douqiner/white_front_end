@@ -197,15 +197,24 @@ fun convertOrdersToRideShareItems(response: AllOrdersResponse): List<RideShareIt
         val timeRange =
             formatOrderTime(order.date, order.earliest_departure_time, order.latest_departure_time)
 
+        // 模拟从高德API获取的距离数据（实际使用时替换为真实的距离值）
+        val distanceFromAPI = "从高德API获取距离" // 假设这是从高德API获取的距离，单位：米
+
+        // 计算预期价格 - 使用工具类
+        val expectedPrice = PriceUtils.calculateExpectedPrice(distanceFromAPI)
+
+        // 格式化距离显示（转换为公里）- 使用工具类
+        val distanceDisplay = PriceUtils.formatDistanceDisplay(distanceFromAPI)
+
         RideShareItem(
             id = "${order.order_id}",
             startPoint = order.departure,
             endPoint = order.destination,
-            distance = "使用高德API计算距离",  // 需要额外的地图服务计算距离
+            distance = distanceDisplay,
             startTime = timeRange,
             currentPeople = currentPeople,
             targetPeople = 4,  // 假设目标是4人拼车
-            expectedPrice = "预估中...",  // 需要额外计算
+            expectedPrice = expectedPrice,  // 使用计算出的价格
             driverName = if (order.driver.isNullOrEmpty()) "司机未接单" else order.driver,  // 司机
             driverRating = if (order.driver.isNullOrEmpty()) 0f else 5.0f,  // 假设默认评分
             carType = if (order.driver.isNullOrEmpty()) "司机无描述" else "舒适型",  // 示例数据

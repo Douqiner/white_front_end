@@ -98,7 +98,8 @@ data class OrderDetail(
     val earliestDepartureTime: String,
     @SerializedName("latest_departure_time")
     val latestDepartureTime: String,
-    val remark: String
+    val remark: String,
+    val distance: String? = null  // 新增距离字段，单位：米
 )
 
 // 订单状态信息
@@ -543,6 +544,11 @@ fun OrderDetailContent(
     val formattedTimeRange =
         "${earliestTime.format(timeFormatter)}-${latestTime.format(timeFormatter)}"
 
+    // 计算距离和价格 - 使用工具类
+    val distanceInMeters = currentOrder.order.distance ?: "从高德API获取距离"
+    val formattedDistance = PriceUtils.formatDistanceDisplay(distanceInMeters)
+    val calculatedPrice = PriceUtils.calculateExpectedPrice(distanceInMeters)
+
     // 计算参与人数
     val participants = listOfNotNull(
         currentOrder.order.user1,
@@ -635,7 +641,6 @@ fun OrderDetailContent(
                     .background(MaterialTheme.colorScheme.surfaceVariant),
                 contentAlignment = Alignment.Center
             ) {
-                // 保持地图区域内容不变...
                 Column(
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
@@ -669,8 +674,8 @@ fun OrderDetailContent(
                 driverUsername = currentOrder.order.driver,
                 driverRating = driverRating,
                 driverRatingCount = driverRatingCount,
-                allPassengersArrived = allPassengersArrived, // 传递新参数
-                isDriver = isDriver // 传递司机标志
+                allPassengersArrived = allPassengersArrived,
+                isDriver = isDriver
             )
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -698,7 +703,8 @@ fun OrderDetailContent(
                     DetailRow("订单ID", "#${currentOrder.order.orderId}")
                     DetailRow("出发地", currentOrder.order.departure)
                     DetailRow("目的地", currentOrder.order.destination)
-                    DetailRow("行程距离", "使用高德API根据出发地与目的地计算")
+                    DetailRow("行程距离", formattedDistance)  // 显示实际距离
+                    DetailRow("预计费用", calculatedPrice)   // 显示计算的价格
                     DetailRow("日期", formattedDate)
                     DetailRow("预计开始时间", formattedTimeRange)
                     DetailRow("参与人数", "${participants.size}/4")
@@ -707,7 +713,7 @@ fun OrderDetailContent(
                     HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
 
                     Text(
-                        text = "乘客",  // 从"参与用户"改为"乘客"
+                        text = "乘客",
                         style = MaterialTheme.typography.titleSmall,
                         fontWeight = FontWeight.Bold
                     )
@@ -1460,5 +1466,81 @@ fun ActionButtonsInProgressPreview() {
             onConfirmArrival = {},
             onConfirmDestination = {}
         )
+    }
+}
+
+// 更新价格信息卡片组件
+@Composable
+fun PriceInfoCard(
+    distance: String,
+    calculatedPrice: String,
+    participantCount: Int
+) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.1f)
+        )
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp)
+        ) {
+            Text(
+                text = "费用信息",
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.primary
+            )
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Column {
+                    Text(
+                        text = "行程距离",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                    Text(
+                        text = distance,
+                        style = MaterialTheme.typography.bodyMedium,
+                        fontWeight = FontWeight.Medium
+                    )
+                }
+
+                Column(horizontalAlignment = Alignment.End) {
+                    Text(
+                        text = "预计总费用",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                    Text(
+                        text = calculatedPrice,
+                        style = MaterialTheme.typography.bodyMedium,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                }
+            }
+
+            if (participantCount > 1) {
+                Spacer(modifier = Modifier.height(4.dp))
+                // 使用工具类计算人均价格
+                val pricePerPerson =
+                    PriceUtils.calculatePricePerPerson(calculatedPrice, participantCount)
+
+                Text(
+                    text = "人均费用：$pricePerPerson",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.secondary,
+                    modifier = Modifier.align(Alignment.End)
+                )
+            }
+        }
     }
 }
