@@ -2,7 +2,6 @@ package com.example.white_web
 
 import android.widget.Toast
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -188,7 +187,18 @@ fun LoginScreen(navController: NavHostController) {
                     containerColor = MaterialTheme.colorScheme.primary
                 ),
                 onClick = {
-                    // 检查 - 根据API文档修改用户名长度验证
+                    // 检查空值
+                    if (username.isBlank()) {
+                        Toast.makeText(context, "请输入用户名", Toast.LENGTH_SHORT)
+                            .show()
+                        return@Button
+                    }
+                    if (password.isBlank()) {
+                        Toast.makeText(context, "请输入密码", Toast.LENGTH_SHORT)
+                            .show()
+                        return@Button
+                    }
+                    // 检查长度 - 根据API文档修改用户名长度验证
                     if (username.length < 6) {
                         Toast.makeText(context, "用户名长度至少6位", Toast.LENGTH_SHORT)
                             .show()
@@ -238,7 +248,10 @@ fun LoginScreen(navController: NavHostController) {
                         }
                     }
                 }) {
-                Text("登录", style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold))
+                Text(
+                    "登录",
+                    style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold)
+                )
             }
 
             Spacer(modifier = Modifier.height(16.dp))

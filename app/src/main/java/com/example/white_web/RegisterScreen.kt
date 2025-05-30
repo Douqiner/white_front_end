@@ -455,6 +455,23 @@ fun RegisterScreen(navController: NavHostController) {
                         .fillMaxWidth()
                         .height(54.dp)
                         .clip(RoundedCornerShape(16.dp)), onClick = {
+                        // 检查空值
+                        if (username.isBlank()) {
+                            Toast.makeText(context, "请输入用户名", Toast.LENGTH_SHORT).show()
+                            return@Button
+                        }
+                        if (phoneNumber.isBlank()) {
+                            Toast.makeText(context, "请输入电话号码", Toast.LENGTH_SHORT).show()
+                            return@Button
+                        }
+                        if (password.isBlank()) {
+                            Toast.makeText(context, "请输入密码", Toast.LENGTH_SHORT).show()
+                            return@Button
+                        }
+                        if (confirmPassword.isBlank()) {
+                            Toast.makeText(context, "请输入确认密码", Toast.LENGTH_SHORT).show()
+                            return@Button
+                        }
                         // 参数验证
                         if (username.length < 6) {
                             Toast.makeText(context, "用户名至少需要6位", Toast.LENGTH_SHORT).show()
@@ -464,6 +481,10 @@ fun RegisterScreen(navController: NavHostController) {
                             return@Button
                         } else if (phoneNumber.length != 11) {
                             Toast.makeText(context, "电话号码必须为11位", Toast.LENGTH_SHORT).show()
+                            return@Button
+                        } else if (!phoneNumber.all { it.isDigit() }) {
+                            Toast.makeText(context, "电话号码只能包含数字", Toast.LENGTH_SHORT)
+                                .show()
                             return@Button
                         } else if (password.length < 6) {
                             Toast.makeText(context, "密码至少需要6位", Toast.LENGTH_SHORT).show()
