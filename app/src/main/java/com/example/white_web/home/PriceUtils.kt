@@ -46,7 +46,7 @@ object PriceUtils {
      */
     fun formatDistanceDisplay(distanceInMeters: String): String {
         return try {
-            val distance = distanceInMeters.toDoubleOrNull() ?: return "距离计算中..."
+            val distance = distanceInMeters.toDoubleOrNull() ?: return "需要从高德API获取距离"
             val distanceInKm = distance / 1000.0
             if (distanceInKm < 1.0) {
                 "${distance.toInt()}米"

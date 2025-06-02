@@ -5,7 +5,6 @@ import PosDetail
 import android.annotation.SuppressLint
 import android.util.Log
 import androidx.compose.foundation.background
-import androidx.compose.foundation.gestures.detectTransformGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -21,7 +20,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.Button
@@ -51,7 +49,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -108,7 +105,7 @@ data class OrderDetail(
     @SerializedName("latest_departure_time")
     val latestDepartureTime: String,
     val remark: String,
-    val distance: String? = null  // 新增距离字段，单位：米
+    val distance: String? = null
 )
 
 // 订单状态信息
@@ -381,6 +378,27 @@ class CurrentOrdersViewModel : ViewModel() {
     // 清除错误
     fun clearError() {
         _error.value = null
+    }
+
+    // 开始行程
+    fun startTrip(orderId: Int) {
+        viewModelScope.launch {
+            _isLoading.value = true
+            _error.value = null
+            try {
+                val response = APISERVICCE.startTrip(request = OrderIdRequest(orderId))
+                if (response.isSuccessful && response.body()?.code == 200) {
+                    // 开始行程成功后刷新订单状态
+                    fetchCurrentOrder()
+                } else {
+                    _error.value = response.body()?.message ?: "开始行程失败"
+                }
+            } catch (e: Exception) {
+                _error.value = "网络请求错误: ${e.message}"
+            } finally {
+                _isLoading.value = false
+            }
+        }
     }
 }
 
@@ -828,7 +846,8 @@ fun OrderDetailContent(
                         isDriver
                     )
                 },
-                allPassengersArrived = allPassengersArrived  // 传递新参数
+                onStartTrip = { viewModel.startTrip(currentOrder.order.orderId) },
+                allPassengersArrived = allPassengersArrived
             )
         }
     }
@@ -1107,6 +1126,7 @@ fun ActionButtons(
     hasRated: Boolean,
     onConfirmArrival: () -> Unit,
     onConfirmDestination: () -> Unit,
+    onStartTrip: () -> Unit = {},
     allPassengersArrived: Boolean = false
 ) {
     when (orderStatus) {
@@ -1114,40 +1134,56 @@ fun ActionButtons(
             Column(
                 modifier = Modifier.fillMaxWidth()
             ) {
-                // 司机确认到达后不再显示"确认到达"按钮
-                if (isDriver && isCurrentUserArrived) {
-                    Button(
-                        onClick = onConfirmDestination,
-                        modifier = Modifier.fillMaxWidth(),
-                        enabled = allPassengersArrived,
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = MaterialTheme.colorScheme.primary,  // 从secondary改为primary
-                            disabledContainerColor = MaterialTheme.colorScheme.surfaceVariant.copy(
-                                alpha = 0.7f
+                if (isDriver) {
+                    if (isCurrentUserArrived) {
+                        // 司机已确认到达，显示"开始行程"按钮
+                        Button(
+                            onClick = onStartTrip,
+                            modifier = Modifier.fillMaxWidth(),
+                            enabled = allPassengersArrived,
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = MaterialTheme.colorScheme.primary,
+                                disabledContainerColor = MaterialTheme.colorScheme.surfaceVariant.copy(
+                                    alpha = 0.7f
+                                )
                             )
-                        )
-                    ) {
-                        Text(
-                            text = "开始行程",
-                            modifier = Modifier.padding(8.dp),
-                            color = if (allPassengersArrived)
-                                MaterialTheme.colorScheme.onPrimary  // 从onSecondary改为onPrimary
-                            else
-                                MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    }
+                        ) {
+                            Text(
+                                text = "开始行程",
+                                modifier = Modifier.padding(8.dp),
+                                color = if (allPassengersArrived)
+                                    MaterialTheme.colorScheme.onPrimary
+                                else
+                                    MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
 
-                    // 提示信息
-                    if (!allPassengersArrived) {
-                        Text(
-                            text = "等待所有乘客确认到达后可以开始行程",
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.error,
-                            modifier = Modifier.padding(top = 4.dp, start = 8.dp)
-                        )
+                        // 提示信息
+                        if (!allPassengersArrived) {
+                            Text(
+                                text = "等待所有乘客确认到达后可以开始行程",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.error,
+                                modifier = Modifier.padding(top = 4.dp, start = 8.dp)
+                            )
+                        }
+                    } else {
+                        // 司机未确认到达，显示"确认到达"按钮
+                        Button(
+                            onClick = onConfirmArrival,
+                            modifier = Modifier.fillMaxWidth(),
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = MaterialTheme.colorScheme.primary
+                            )
+                        ) {
+                            Text(
+                                text = "确认到达",
+                                modifier = Modifier.padding(8.dp)
+                            )
+                        }
                     }
                 } else {
-                    // 未确认到达时显示"确认到达"按钮
+                    // 乘客的确认到达按钮
                     Button(
                         onClick = onConfirmArrival,
                         modifier = Modifier
@@ -1168,16 +1204,6 @@ fun ActionButtons(
                                 MaterialTheme.colorScheme.onPrimary
                             else
                                 MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    }
-
-                    // 司机未确认到达时也显示提示
-                    if (isDriver && !isCurrentUserArrived) {
-                        Text(
-                            text = "请先确认您已到达",
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.error,
-                            modifier = Modifier.padding(top = 4.dp, start = 8.dp)
                         )
                     }
                 }
@@ -1454,6 +1480,7 @@ fun ActionButtonsNotStartedPreview() {
             hasRated = false,
             onConfirmArrival = {},
             onConfirmDestination = {},
+            onStartTrip = {},
             allPassengersArrived = true
         )
     }
@@ -1470,6 +1497,7 @@ fun ActionButtonsNotStartedPreviewDisabled() {
             hasRated = false,
             onConfirmArrival = {},
             onConfirmDestination = {},
+            onStartTrip = {},
             allPassengersArrived = false
         )
     }

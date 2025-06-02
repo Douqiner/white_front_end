@@ -120,6 +120,12 @@ interface ApiService {
         @Body request: OrderIdRequest
     ): Response<ConfirmArrivalResponse>
 
+    @POST("/api/order/start-trip")
+    suspend fun startTrip(
+        @Header("Authorization") token: String? = TOKEN,
+        @Body request: OrderIdRequest
+    ): Response<BaseResponse>
+
     @POST("/api/order/confirm-destination")
     suspend fun confirmDestination(
         @Header("Authorization") token: String? = TOKEN,
