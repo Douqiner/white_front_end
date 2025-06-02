@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools">
+    xmlns:tools="http://schemas.android.com/tools"
+    package="com.example.white_web">
 
     <!-- 添加网络权限 -->
     <uses-permission android:name="android.permission.INTERNET" />
@@ -60,7 +61,8 @@
         </activity>
         <meta-data
             android:name="com.amap.api.v2.apikey"
-            android:value="7df73d284f30bc776e84f78bd05d9ed9" />
+            android:value="29f6159aedbf2d1310649e35f18c4495" >
+        </meta-data>
     </application>
 
 </manifest>

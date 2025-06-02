@@ -1,9 +1,11 @@
 package com.example.white_web.home
 
 // 导入Compose和相关依赖
+import PosDetail
 import android.annotation.SuppressLint
 import android.util.Log
 import androidx.compose.foundation.background
+import androidx.compose.foundation.gestures.detectTransformGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -42,10 +44,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -58,6 +64,7 @@ import androidx.navigation.NavHostController
 import com.example.white_web.APISERVICCE
 import com.example.white_web.CheckUserRatingRequest
 import com.example.white_web.USERNAME
+import com.example.white_web.map.GDMapPath
 import com.example.white_web.ui.theme.White_webTheme
 import com.google.gson.annotations.SerializedName
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -79,7 +86,9 @@ data class CurrentOrderResponse(
 // 当前订单数据
 data class CurrentOrderData(
     val order: OrderDetail,
-    val status: OrderStatusDetail
+    val status: OrderStatusDetail,
+    val start: PosDetail,
+    val end: PosDetail,
 )
 
 // 订单详细信息
@@ -544,8 +553,12 @@ fun OrderDetailContent(
     val formattedTimeRange =
         "${earliestTime.format(timeFormatter)}-${latestTime.format(timeFormatter)}"
 
+
+    // 地图函数计算的距离
+    var distance by remember { mutableStateOf<Float>(0f) }
+
     // 计算距离和价格 - 使用工具类
-    val distanceInMeters = currentOrder.order.distance ?: "从高德API获取距离"
+    val distanceInMeters = distance.toString()
     val formattedDistance = PriceUtils.formatDistanceDisplay(distanceInMeters)
     val calculatedPrice = PriceUtils.calculateExpectedPrice(distanceInMeters)
 
@@ -641,26 +654,33 @@ fun OrderDetailContent(
                     .background(MaterialTheme.colorScheme.surfaceVariant),
                 contentAlignment = Alignment.Center
             ) {
-                Column(
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.LocationOn,
-                        contentDescription = "地图",
-                        modifier = Modifier.size(48.dp),
-                        tint = MaterialTheme.colorScheme.primary
-                    )
-                    Text(
-                        text = "路线地图",
-                        style = MaterialTheme.typography.titleMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                    Text(
-                        text = "使用高德API根据出发地（${currentOrder.order.departure}） → 目的地（${currentOrder.order.destination}）绘制",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                }
+//                Column(
+//                    horizontalAlignment = Alignment.CenterHorizontally
+//                ) {
+//                    Icon(
+//                        imageVector = Icons.Default.LocationOn,
+//                        contentDescription = "地图",
+//                        modifier = Modifier.size(48.dp),
+//                        tint = MaterialTheme.colorScheme.primary
+//                    )
+//                    Text(
+//                        text = "路线地图",
+//                        style = MaterialTheme.typography.titleMedium,
+//                        color = MaterialTheme.colorScheme.onSurfaceVariant
+//                    )
+//                    Text(
+//                        text = "使用高德API根据出发地（${currentOrder.order.departure}） → 目的地（${currentOrder.order.destination}）绘制",
+//                        style = MaterialTheme.typography.bodyMedium,
+//                        color = MaterialTheme.colorScheme.onSurfaceVariant
+//                    )
+//                }
+                GDMapPath(modifier = Modifier
+                    .matchParentSize(),
+                    start = currentOrder.start,
+                    end = currentOrder.end,
+                    onDistanceCalculated = { d ->
+                        distance = d
+                    })
             }
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -1363,7 +1383,9 @@ fun OrderDetailContentPreview() {
 
         val mockCurrentOrder = CurrentOrderData(
             order = mockOrder,
-            status = mockStatus
+            status = mockStatus,
+            start = PosDetail("嘉定校区", 121.214728, 31.285629),
+            end = PosDetail("虹桥火车站", 121.320674, 31.194062)
         )
 
         OrderDetailContent(

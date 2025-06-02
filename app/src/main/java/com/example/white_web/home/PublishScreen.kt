@@ -39,9 +39,14 @@ data class GetPosResponse(
     val data: Data?
 ) {
     data class Data(
-        val table: List<String>
+        val table: List<PosDetail>
     )
 }
+data class PosDetail(
+    val name: String,
+    val lon: Double,
+    val lat: Double,
+)
 
 data class PublishRequest(
     val departure: String,
@@ -69,8 +74,8 @@ data class PublishResponse(
 }
 
 @Composable
-fun PublishScreen(navController: NavHostController) {
-    var posList by remember { mutableStateOf<List<String>?>(null) }
+fun PublishScreen(navController: NavHostController, initDeparture: String = "",  initDestination: String = "") {
+    var posList by remember { mutableStateOf<List<PosDetail>?>(null) }
     var errorMsg by remember { mutableStateOf<String?>("载入中···") }
 
     LaunchedEffect(Unit) {
@@ -90,7 +95,7 @@ fun PublishScreen(navController: NavHostController) {
 //    posList = listOf("选项1", "选项2", "选项3")
 
     if (posList != null) {
-        DisplayPublish(posList!!, navController)
+        DisplayPublish(posList!!, navController, initDeparture, initDestination)
     } else {
         Column(
             modifier = Modifier
@@ -141,9 +146,9 @@ fun PublishScreen(navController: NavHostController) {
 }
 
 @Composable
-fun DisplayPublish(posList: List<String>, navController: NavHostController) {
-    var departure by remember { mutableStateOf("") }
-    var destination by remember { mutableStateOf("") }
+fun DisplayPublish(posList: List<PosDetail>, navController: NavHostController, initDeparture: String,  initDestination: String) {
+    var departure by remember { mutableStateOf(initDeparture) }
+    var destination by remember { mutableStateOf(initDestination) }
     var date by remember { mutableStateOf("") }
     var earliestTime by remember { mutableStateOf("") }
     var latestTime by remember { mutableStateOf("") }
@@ -262,9 +267,9 @@ fun DisplayPublish(posList: List<String>, navController: NavHostController) {
                             ) {
                                 posList.forEach { option ->
                                     DropdownMenuItem(
-                                        text = { Text(option) },
+                                        text = { Text(option.name) },
                                         onClick = {
-                                            departure = option
+                                            departure = option.name
                                             departureExpanded = false
                                         }
                                     )
@@ -308,9 +313,9 @@ fun DisplayPublish(posList: List<String>, navController: NavHostController) {
                             ) {
                                 posList.forEach { option ->
                                     DropdownMenuItem(
-                                        text = { Text(option) },
+                                        text = { Text(option.name) },
                                         onClick = {
-                                            destination = option
+                                            destination = option.name
                                             destinationExpanded = false
                                         }
                                     )
@@ -488,7 +493,7 @@ fun DisplayPublish(posList: List<String>, navController: NavHostController) {
                                     val id = response.body()?.data?.order_id
                                     // 成功后跳转到 详情界面
                                     navController.navigate("tripDetail/$id") {
-                                        popUpTo("createTrip") { inclusive = true } // 清除发布页面
+                                        popUpTo("createTripRoot") { inclusive = true } // 清除发布页面
                                     }
                                 } else {
                                     // 发布失败

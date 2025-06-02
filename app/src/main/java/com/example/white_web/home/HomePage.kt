@@ -1,5 +1,6 @@
 package com.example.white_web.home
 
+import PosDetail
 import android.annotation.SuppressLint
 import android.widget.Toast
 import androidx.compose.animation.AnimatedVisibility
@@ -89,7 +90,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.white_web.APISERVICCE
 import com.example.white_web.USERTYPE
-import com.example.white_web.map.GDMap
+import com.example.white_web.map.GDMapMarker
 import com.example.white_web.ui.theme.White_webTheme
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -310,7 +311,9 @@ fun HomePage(
 
     // 订单数据
     val listItems by viewModel.listItems.collectAsState()
+    val posDetails by viewModel.posDetails.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
+    val posLoading by viewModel.posLoading.collectAsState()
     val error by viewModel.error.collectAsState()
 
     // 创建协程作用域
@@ -343,14 +346,22 @@ fun HomePage(
                         )
                     ), contentAlignment = Alignment.Center // 内容居中
             ) {
-//                Text(
-//                    "地图区域 (需配置高德地图SDK)",
-//                    color = MaterialTheme.colorScheme.onSurfaceVariant
-//                )
-                GDMap(
-                    modifier = Modifier.matchParentSize(),
-                    onLocationUpdated = { /* 可处理其他逻辑 */ }
-                )
+
+                if (posLoading)
+                {
+                    Text(
+                        "位置正在加载",
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+                else
+                {
+                    GDMapMarker(
+                        modifier = Modifier.matchParentSize(),
+                        markers = posDetails,
+                        navController = navController,
+                    )
+                }
             }
 
             // ---------- 可拖拽底部列表 ----------
@@ -996,8 +1007,14 @@ class HomeViewModel : ViewModel() {
     private val _orders = MutableStateFlow<List<RideShareItem>>(emptyList())
     val listItems = _orders.asStateFlow()
 
-    private val _isLoading = MutableStateFlow(false)// 正在加载状态，为真代表正在加载
+    private val _isLoading = MutableStateFlow(true)// 正在加载状态，为真代表正在加载
     val isLoading = _isLoading.asStateFlow()
+
+    private val _posDetails = MutableStateFlow<List<PosDetail>>(emptyList())
+    val posDetails = _posDetails.asStateFlow()
+
+    private val _posLoading = MutableStateFlow(true)// 正在加载状态，为真代表正在加载
+    val posLoading = _posLoading.asStateFlow()
 
     private val _error = MutableStateFlow<String?>(null)// 错误提示信息
     val error = _error.asStateFlow()
@@ -1010,6 +1027,7 @@ class HomeViewModel : ViewModel() {
 
     init {
         fetchOrders()
+        fetchposDetails()
     }
 
     fun fetchOrders() {
@@ -1034,6 +1052,32 @@ class HomeViewModel : ViewModel() {
                 _error.value = "网络请求错误: ${e.message}"
             } finally {
                 _isLoading.value = false
+            }
+        }
+    }
+
+    fun fetchposDetails() {
+        viewModelScope.launch {
+            _posLoading.value = true
+            _error.value = null
+
+            try {
+                // 获取位置列表
+                val response = APISERVICCE.getPos()
+
+                if (response.isSuccessful) {
+                    response.body()?.let { apiResponse ->
+                        _posDetails.value = apiResponse.data!!.table
+                    } ?: run {
+                        _error.value = "返回数据为空"
+                    }
+                } else {
+                    _error.value = "获取位置列表失败: ${response.code()}"
+                }
+            } catch (e: Exception) {
+                _error.value = "网络请求错误: ${e.message}"
+            } finally {
+                _posLoading.value = false
             }
         }
     }
