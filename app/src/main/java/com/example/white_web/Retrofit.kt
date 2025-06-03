@@ -26,6 +26,7 @@ import retrofit2.http.Path
 
 private val retrofit = Retrofit.Builder()
     .baseUrl("http://10.0.2.2:8443/")  // 后端地址
+//    .baseUrl("http://59.110.22.187:8443/") // 服务器地址
     .addConverterFactory(GsonConverterFactory.create())
     .build()
 
