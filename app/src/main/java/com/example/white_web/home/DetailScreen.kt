@@ -1,15 +1,15 @@
 /**
  * 订单详情查看界面
- * 
+ *
  * 文件功能: 特定订单的详细信息展示和操作界面
- * 
+ *
  * 主要功能:
  * - 展示订单的完整详细信息
  * - 提供加入/退出订单功能
  * - 支持司机接单和放弃操作
  * - 显示参与者信息和联系方式
  * - 实现订单状态动态更新
- * 
+ *
  * 展示信息:
  * - 出发地和目的地
  * - 拼车日期和时间范围
@@ -17,18 +17,18 @@
  * - 司机信息（如有）
  * - 备注信息
  * - 联系方式
- * 
+ *
  * 用户操作逻辑:
  * 乘客用户（USERTYPE=1）:
  * - 未参与: 显示"加入拼单"按钮
  * - 已参与: 显示"退出拼单"/"移除拼单"按钮
  * - 人数已满: 显示"人数已满"禁用状态
- * 
+ *
  * 司机用户（USERTYPE=2）:
  * - 无司机: 显示"接受拼单"按钮
  * - 已接单: 显示"放弃接受"按钮
  * - 他人已接: 显示"已有司机"禁用状态
- * 
+ *
  * UI组件:
  * - 只读表单字段展示
  * - 动态操作按钮
@@ -37,7 +37,17 @@
  */
 import android.widget.Toast
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBars
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
@@ -46,8 +56,23 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.DateRange
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextFieldDefaults
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -71,6 +96,7 @@ data class DetailResponse(
     val message: String,
     val data: DetailData?
 )
+
 data class DetailData(
     val order_id: Int,
     val user1: String,
@@ -195,6 +221,7 @@ fun DetailScreen(orderId: Int, navController: NavHostController) {
     }
 
 }
+
 @Composable
 fun DisplayDetail(detailData: DetailData, navController: NavHostController, phonenumber: String) {
 
@@ -211,19 +238,20 @@ fun DisplayDetail(detailData: DetailData, navController: NavHostController, phon
     val buttonText: String
     val isClickable: Boolean
 
-     if (USERTYPE == 1) {
-         if (listOf(detailData.user1, detailData.user2, detailData.user3, detailData.user4).contains(USERNAME)) {
-             // 如果包含该用户，显示红色按钮 "退出"
-             buttonColor = MaterialTheme.colorScheme.error
-             if (userCount == 1) {
-                 buttonText = "移除拼单"
-             }
-             else {
-                 buttonText = "退出拼单"
-             }
-             isClickable = true
-         }
-        else if (userCount == 4) {
+    if (USERTYPE == 1) {
+        if (listOf(detailData.user1, detailData.user2, detailData.user3, detailData.user4).contains(
+                USERNAME
+            )
+        ) {
+            // 如果包含该用户，显示红色按钮 "退出"
+            buttonColor = MaterialTheme.colorScheme.error
+            if (userCount == 1) {
+                buttonText = "移除拼单"
+            } else {
+                buttonText = "退出拼单"
+            }
+            isClickable = true
+        } else if (userCount == 4) {
             // 如果当前人数为 4，显示灰色按钮 "人数已满"
             buttonColor = MaterialTheme.colorScheme.tertiary
             buttonText = "人数已满"
@@ -234,28 +262,24 @@ fun DisplayDetail(detailData: DetailData, navController: NavHostController, phon
             buttonText = "加入拼单"
             isClickable = true
         }
-    }
-    else if (USERTYPE == 2) {
+    } else if (USERTYPE == 2) {
         if (detailData.driver.isNullOrEmpty()) {
             // 否则，显示蓝色按钮 "加入"
             buttonColor = MaterialTheme.colorScheme.primary
             buttonText = "接受拼单"
             isClickable = true
-        }
-         else if (detailData.driver == USERNAME) {
+        } else if (detailData.driver == USERNAME) {
             // 如果包含该用户，显示红色按钮 "退出"
             buttonColor = MaterialTheme.colorScheme.error
             buttonText = "放弃接受"
             isClickable = true
-        }
-         else {
+        } else {
             // 显示灰色按钮 "人数已满"
             buttonColor = MaterialTheme.colorScheme.tertiary
             buttonText = "人数已满"
             isClickable = false
         }
-     }
-    else {
+    } else {
         buttonColor = MaterialTheme.colorScheme.tertiary
         buttonText = "参数错误"
         isClickable = false
@@ -489,18 +513,17 @@ fun DisplayDetail(detailData: DetailData, navController: NavHostController, phon
             ),
             onClick = {
                 // 检查
-                if (isClickable){
+                if (isClickable) {
                     scope.launch {
                         try {
-                            val response : Response<JoinLeaveRedponse>
+                            val response: Response<JoinLeaveRedponse>
                             if (buttonText == "加入拼单" || buttonText == "接受拼单") {
                                 response = APISERVICCE.joinOrder(
                                     request = JoinLeaveRequest(
                                         detailData.order_id
                                     )
                                 )
-                            }
-                            else {
+                            } else {
                                 response = APISERVICCE.leaveOrder(
                                     request = JoinLeaveRequest(
                                         detailData.order_id
@@ -516,8 +539,7 @@ fun DisplayDetail(detailData: DetailData, navController: NavHostController, phon
                                         .show()
                                     navController.popBackStack()
                                     navController.navigate("tripDetail/${detailData.order_id}")
-                                }
-                                else {
+                                } else {
                                     if (USERTYPE == 1) {
                                         // 离开成功后，如果还有人跳转到详情界面 否则退出
                                         if (userCount > 1) {
@@ -525,14 +547,16 @@ fun DisplayDetail(detailData: DetailData, navController: NavHostController, phon
                                                 .show()
                                             navController.popBackStack()
                                             navController.navigate("tripDetail/${detailData.order_id}")
-                                        }
-                                        else {
-                                            Toast.makeText(context, "订单已删除", Toast.LENGTH_SHORT)
+                                        } else {
+                                            Toast.makeText(
+                                                context,
+                                                "订单已删除",
+                                                Toast.LENGTH_SHORT
+                                            )
                                                 .show()
                                             navController.popBackStack()
                                         }
-                                    }
-                                    else if (USERTYPE == 2) {
+                                    } else if (USERTYPE == 2) {
                                         Toast.makeText(context, "退出成功", Toast.LENGTH_SHORT)
                                             .show()
                                     }

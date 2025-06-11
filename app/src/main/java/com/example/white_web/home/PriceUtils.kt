@@ -1,29 +1,29 @@
 /**
  * 价格计算工具类 (Price Calculation Utility)
- * 
+ *
  * 文件功能: 拼车费用计算和距离格式化工具
- * 
+ *
  * 核心功能:
  * - calculateExpectedPrice: 距离费用计算
  * - formatDistanceDisplay: 距离格式化显示
  * - calculatePricePerPerson: 人均费用计算
- * 
+ *
  * 计价规则:
  * - 起步价: 8元（3公里内）
  * - 超距费用: 每公里2.5元
  * - 最低价格: 8元
  * - 最高价格: 1000元（异常保护）
- * 
+ *
  * 距离处理:
  * - 输入: 米为单位的字符串
  * - 转换: 自动转换为公里计算
  * - 输出: 格式化价格字符串
- * 
+ *
  * 格式化规则:
  * - 小于1000米: 显示"XXX米"
  * - 大于等于1000米: 显示"X.X公里"
  * - 保留一位小数精度
- * 
+ *
  * 使用场景:
  * - 订单列表价格预估
  * - 订单详情费用显示
@@ -36,7 +36,7 @@ package com.example.white_web.home
  * 价格计算相关的工具类
  */
 object PriceUtils {
-    
+
     /**
      * 根据距离计算预期价格
      * @param distanceInMeters 距离，单位：米（字符串格式）

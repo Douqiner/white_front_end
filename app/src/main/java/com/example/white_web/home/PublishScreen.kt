@@ -1,15 +1,15 @@
 /**
  * 拼车需求发布界面
- * 
+ *
  * 文件功能: 用户发布新拼车需求的界面和逻辑处理
- * 
+ *
  * 主要功能:
  * - 提供完整的拼车需求发布表单
  * - 支持出发地和目的地选择
  * - 集成日期时间选择器
  * - 实现地图点位选择功能
  * - 提供需求发布和验证
- * 
+ *
  * 表单字段:
  * - 出发地（支持手动输入和地图选择）
  * - 目的地（支持手动输入和地图选择）
@@ -17,13 +17,13 @@
  * - 最早出发时间（时间选择器）
  * - 最晚出发时间（时间选择器）
  * - 备注信息（可选文本）
- * 
+ *
  * 验证规则:
  * - 出发地和目的地必填
  * - 日期不能早于当前日期
  * - 最晚时间必须晚于最早时间
  * - 用户类型权限检查（仅乘客可发布）
- * 
+ *
  * 用户体验:
  * - 直观的表单界面
  * - 实时输入验证
@@ -35,7 +35,17 @@ import android.app.TimePickerDialog
 import android.content.Context
 import android.widget.Toast
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBars
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
@@ -45,8 +55,25 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.DateRange
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextFieldDefaults
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -63,7 +90,7 @@ import com.example.white_web.R
 import com.example.white_web.USERTYPE
 import com.example.white_web.ui.theme.White_webTheme
 import kotlinx.coroutines.launch
-import java.util.*
+import java.util.Calendar
 
 data class GetPosResponse(
     val code: Int,
@@ -74,6 +101,7 @@ data class GetPosResponse(
         val table: List<PosDetail>
     )
 }
+
 data class PosDetail(
     val name: String,
     val lon: Double,
@@ -106,7 +134,11 @@ data class PublishResponse(
 }
 
 @Composable
-fun PublishScreen(navController: NavHostController, initDeparture: String = "",  initDestination: String = "") {
+fun PublishScreen(
+    navController: NavHostController,
+    initDeparture: String = "",
+    initDestination: String = ""
+) {
     var posList by remember { mutableStateOf<List<PosDetail>?>(null) }
     var errorMsg by remember { mutableStateOf<String?>("载入中···") }
 
@@ -178,7 +210,12 @@ fun PublishScreen(navController: NavHostController, initDeparture: String = "", 
 }
 
 @Composable
-fun DisplayPublish(posList: List<PosDetail>, navController: NavHostController, initDeparture: String,  initDestination: String) {
+fun DisplayPublish(
+    posList: List<PosDetail>,
+    navController: NavHostController,
+    initDeparture: String,
+    initDestination: String
+) {
     var departure by remember { mutableStateOf(initDeparture) }
     var destination by remember { mutableStateOf(initDestination) }
     var date by remember { mutableStateOf("") }
@@ -368,7 +405,8 @@ fun DisplayPublish(posList: List<PosDetail>, navController: NavHostController, i
                                         date = selectedDate
                                     }
                                 }) {
-                                    Icon(Icons.Default.DateRange,
+                                    Icon(
+                                        Icons.Default.DateRange,
                                         contentDescription = "Date Picker",
                                         tint = MaterialTheme.colorScheme.primary
                                     )
@@ -475,7 +513,8 @@ fun DisplayPublish(posList: List<PosDetail>, navController: NavHostController, i
                     ),
                     onClick = {
                         if (USERTYPE != 1) {
-                            Toast.makeText(context, "该用户类型不能发布拼单", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(context, "该用户类型不能发布拼单", Toast.LENGTH_SHORT)
+                                .show()
                             return@Button
                         }
                         // 检查

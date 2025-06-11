@@ -1,28 +1,28 @@
 /**
  * 应用主页界面
- * 
+ *
  * 文件功能: 主页面UI和拼车订单列表展示
- * 
+ *
  * 主要功能:
  * - 展示可用的拼车订单列表
  * - 提供搜索和筛选功能
  * - 支持地图视图和列表视图切换
  * - 实现下拉刷新和上拉加载
  * - 集成实时位置服务
- * 
+ *
  * 数据管理:
  * - HomeViewModel状态管理
  * - API数据获取和缓存
  * - 位置信息处理
  * - 搜索结果管理
- * 
+ *
  * UI组件:
  * - 顶部搜索栏
  * - 拼车订单卡片列表
  * - 下拉刷新指示器
  * - 加载状态指示器
  * - 错误提示界面
- * 
+ *
  * 订单卡片信息:
  * - 出发地和目的地
  * - 行程距离和时间
@@ -30,7 +30,7 @@
  * - 预期价格
  * - 司机信息和评分
  * - 车辆类型和标签
- * 
+ *
  * 技术实现:
  * - StateFlow响应式数据流
  * - Lazy列表性能优化
@@ -387,15 +387,12 @@ fun HomePage(
                     ), contentAlignment = Alignment.Center // 内容居中
             ) {
 
-                if (posLoading)
-                {
+                if (posLoading) {
                     Text(
                         "位置正在加载",
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
-                }
-                else
-                {
+                } else {
                     GDMapMarker(
                         modifier = Modifier.matchParentSize(),
                         markers = posDetails,

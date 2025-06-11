@@ -1,27 +1,27 @@
 /**
  * 高德地图集成组件 (Amap Integration Component)
- * 
+ *
  * 文件功能: 高德地图SDK集成和地图相关功能实现
- * 
+ *
  * 主要功能:
  * - 集成高德地图SDK
  * - 提供定位服务功能
  * - 实现地图标点和路径展示
  * - 支持路径规划和距离计算
  * - 提供地图交互和选点功能
- * 
+ *
  * 定位功能:
  * - GPS定位服务
  * - 位置监听器
  * - 定位蓝点显示
  * - 位置更新回调
- * 
+ *
  * 地图组件:
  * - GDMap: 基础地图组件
  * - GDMapMarker: 带标记的地图组件
  * - 路径展示功能
  * - 相机控制功能
- * 
+ *
  * 使用场景:
  * - 发布页面的地点选择
  * - 当前订单的路径展示
@@ -30,40 +30,45 @@
  */
 package com.example.white_web.map
 
+import PosDetail
 import android.content.Context
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.graphics.Color
 import android.util.Log
-import androidx.compose.runtime.*
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.viewinterop.AndroidView
+import androidx.core.graphics.scale
+import androidx.navigation.NavController
 import com.amap.api.location.AMapLocationClient
 import com.amap.api.location.AMapLocationListener
 import com.amap.api.maps2d.CameraUpdateFactory
 import com.amap.api.maps2d.MapView
+import com.amap.api.maps2d.model.BitmapDescriptorFactory
 import com.amap.api.maps2d.model.LatLng
+import com.amap.api.maps2d.model.LatLngBounds
 import com.amap.api.maps2d.model.Marker
 import com.amap.api.maps2d.model.MarkerOptions
 import com.amap.api.maps2d.model.MyLocationStyle
-import PosDetail
-import android.graphics.Bitmap
-import android.graphics.BitmapFactory
-import android.graphics.Color
-import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
-import com.example.white_web.R
-import androidx.compose.ui.tooling.preview.Preview
-import androidx.core.graphics.scale
-import androidx.navigation.NavController
-import com.amap.api.maps2d.model.BitmapDescriptorFactory
-import com.amap.api.maps2d.model.LatLngBounds
-import com.amap.api.services.route.DriveRouteResult
-import com.amap.api.services.route.RouteSearch
-import com.example.white_web.ui.theme.White_webTheme
 import com.amap.api.maps2d.model.PolylineOptions
 import com.amap.api.services.core.AMapException
 import com.amap.api.services.core.LatLonPoint
 import com.amap.api.services.route.DrivePath
+import com.amap.api.services.route.DriveRouteResult
+import com.amap.api.services.route.RouteSearch
+import com.example.white_web.R
+import com.example.white_web.ui.theme.White_webTheme
 
 /*      此函数进行位置的监听，图标显示              */
 /*      注意：高德默认定位图标显示存在不明bug        */
@@ -88,7 +93,7 @@ private fun initLocationListener(
                 myLocationStyle.interval(1000)
 
                 aMap.setMyLocationStyle(myLocationStyle)//设置定位蓝点的Style
-                aMap.setMyLocationEnabled(true)
+                aMap.isMyLocationEnabled = true
                 Log.d("Location", "Latitude: $latitude, Longitude: $longitude")
             } else {
                 Log.e("Location", "Location error: ${location?.errorCode}, ${location?.errorInfo}")
@@ -99,8 +104,7 @@ private fun initLocationListener(
             setLocationListener(locationListener)
             startLocation()
         }
-    }
-    catch(e:Exception) {
+    } catch (e: Exception) {
         Log.e("ERROR", e.message, e)
     }
 
@@ -124,7 +128,7 @@ fun GDMap(
 //            onLocationUpdated(LatLng(lat, lng))
 
             if (!hasInitialized) {
-                mapView.getMap().moveCamera(
+                mapView.map.moveCamera(
                     CameraUpdateFactory.newLatLngZoom(
                         LatLng(lat, lng),
                         17f
@@ -133,7 +137,7 @@ fun GDMap(
                 hasInitialized = true
             }
         }
-        mapView.getMap().moveCamera(
+        mapView.map.moveCamera(
             CameraUpdateFactory.newLatLngZoom(
                 LatLng(31.285629, 121.214728),
                 17f
@@ -174,9 +178,8 @@ fun GDMapMarker(
     LaunchedEffect(Unit) {
         initLocationListener(context, mapView) { lat, lng ->
             if (!hasInitialized) {
-                if (lat > 31 && lat < 32 && lng > 121 && lng < 122)
-                {
-                    mapView.getMap().moveCamera(
+                if (lat > 31 && lat < 32 && lng > 121 && lng < 122) {
+                    mapView.map.moveCamera(
                         CameraUpdateFactory.newLatLngZoom(
                             LatLng(lat, lng),
                             17f
@@ -187,7 +190,7 @@ fun GDMapMarker(
             }
         }
 
-        mapView.getMap().moveCamera(
+        mapView.map.moveCamera(
             CameraUpdateFactory.newLatLngZoom(
                 LatLng(31.285629, 121.214728),
                 17f
@@ -216,7 +219,7 @@ fun GDMapMarker(
         mapView.map.setOnMarkerClickListener { marker ->
             selectedMarker = marker
             val selectDetail = markerMap[marker]
-            mapView.getMap().moveCamera(
+            mapView.map.moveCamera(
                 CameraUpdateFactory.newLatLngZoom(
                     LatLng(selectDetail!!.lat, selectDetail.lon),
                     17f
@@ -234,8 +237,8 @@ fun GDMapMarker(
             onDismissRequest = { selectedMarker = null },
             onOptionSelected = { option ->
                 when (option) {
-                    "to" -> navController?.navigate("createTrip/to/${detail!!.name}")
-                    "from" -> navController?.navigate("createTrip/from/${detail!!.name}")
+                    "to" -> navController?.navigate("createTrip/to/${detail.name}")
+                    "from" -> navController?.navigate("createTrip/from/${detail.name}")
                 }
                 selectedMarker = null
             }
@@ -282,8 +285,7 @@ fun MarkerOptionsDialog(
 
 @Preview
 @Composable
-fun MarkerOptionsDialogPreview()
-{
+fun MarkerOptionsDialogPreview() {
     White_webTheme {
         MarkerOptionsDialog("上海南站", {}, {})
     }
@@ -324,17 +326,35 @@ fun GDMapPath(
                     }
                 }
 
-                override fun onBusRouteSearched(p0: com.amap.api.services.route.BusRouteResult?, p1: Int) {}
-                override fun onWalkRouteSearched(p0: com.amap.api.services.route.WalkRouteResult?, p1: Int) {}
-                override fun onRideRouteSearched(p0: com.amap.api.services.route.RideRouteResult?, p1: Int) {}
+                override fun onBusRouteSearched(
+                    p0: com.amap.api.services.route.BusRouteResult?,
+                    p1: Int
+                ) {
+                }
+
+                override fun onWalkRouteSearched(
+                    p0: com.amap.api.services.route.WalkRouteResult?,
+                    p1: Int
+                ) {
+                }
+
+                override fun onRideRouteSearched(
+                    p0: com.amap.api.services.route.RideRouteResult?,
+                    p1: Int
+                ) {
+                }
             })
 
             // 构建起点终点信息
-            val start = RouteSearch.FromAndTo(LatLonPoint(start.lat, start.lon), LatLonPoint(end.lat, end.lon))
-            val query = RouteSearch.DriveRouteQuery(start, RouteSearch.DRIVING_NORMAL_CAR, null, null, "")
+            val start = RouteSearch.FromAndTo(
+                LatLonPoint(start.lat, start.lon),
+                LatLonPoint(end.lat, end.lon)
+            )
+            val query =
+                RouteSearch.DriveRouteQuery(start, RouteSearch.DRIVING_NORMAL_CAR, null, null, "")
             routeSearch.calculateDriveRouteAsyn(query)
 
-        } catch(e:Exception) {
+        } catch (e: Exception) {
             Log.e("ERROR", e.message, e)
         }
 

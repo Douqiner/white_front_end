@@ -2,28 +2,24 @@ package com.example.white_web
 
 import DetailScreen
 import PublishScreen
-import android.content.pm.PackageManager
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
-import androidx.compose.foundation.layout.*
-import androidx.compose.material3.*
 import androidx.compose.ui.Modifier
-import androidx.core.content.ContextCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.white_web.ui.theme.White_webTheme
-
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navigation
 import com.amap.api.location.AMapLocationClient
-import com.amap.api.maps2d.MapsInitializer
 import com.example.white_web.home.CurrentOrdersScreen
 import com.example.white_web.home.CurrentOrdersViewModel
 import com.example.white_web.home.HomePage
+import com.example.white_web.ui.theme.White_webTheme
 
 
 class MainActivity : ComponentActivity() {
