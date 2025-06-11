@@ -67,6 +67,189 @@ data class CheckUserRatingData(
     val hasRated: Boolean
 )
 
+// 车辆相关数据类
+data class VehicleRequest(
+    @SerializedName("license_plate")
+    val licensePlate: String,
+    val brand: String,
+    val model: String,
+    val color: String,
+    @SerializedName("seat_count")
+    val seatCount: Int = 4
+)
+
+data class VehicleUpdateRequest(
+    @SerializedName("license_plate")
+    val licensePlate: String? = null,
+    val brand: String? = null,
+    val model: String? = null,
+    val color: String? = null,
+    @SerializedName("seat_count")
+    val seatCount: Int? = null
+)
+
+data class VehicleData(
+    @SerializedName("vehicle_id")
+    val vehicleId: Int,
+    @SerializedName("license_plate")
+    val licensePlate: String,
+    val brand: String,
+    val model: String,
+    val color: String,
+    @SerializedName("seat_count")
+    val seatCount: Int,
+    @SerializedName("is_verified")
+    val isVerified: Boolean,
+    @SerializedName("created_at")
+    val createdAt: String? = null
+)
+
+data class VehicleResponse(
+    val code: Int,
+    val message: String,
+    val data: VehicleData?
+)
+
+data class VehicleListResponse(
+    val code: Int,
+    val message: String,
+    val data: VehicleListData?
+)
+
+data class VehicleListData(
+    val list: List<VehicleData>
+)
+
+// 优惠券相关数据类
+data class CouponCreateRequest(
+    @SerializedName("coupon_name")
+    val couponName: String,
+    @SerializedName("discount_type")
+    val discountType: String, // "percentage" 或 "fixed"
+    @SerializedName("discount_value")
+    val discountValue: Double,
+    @SerializedName("min_amount")
+    val minAmount: Double = 0.0,
+    @SerializedName("start_date")
+    val startDate: String, // YYYY-MM-DD 格式
+    @SerializedName("end_date")
+    val endDate: String, // YYYY-MM-DD 格式
+    @SerializedName("usage_limit")
+    val usageLimit: Int = 1,
+    @SerializedName("is_active")
+    val isActive: Boolean = true
+)
+
+data class CouponData(
+    @SerializedName("coupon_id")
+    val couponId: Int,
+    @SerializedName("coupon_name")
+    val couponName: String,
+    @SerializedName("discount_type")
+    val discountType: String,
+    @SerializedName("discount_value")
+    val discountValue: Double,
+    @SerializedName("min_amount")
+    val minAmount: Double,
+    @SerializedName("start_date")
+    val startDate: String,
+    @SerializedName("end_date")
+    val endDate: String,
+    @SerializedName("usage_limit")
+    val usageLimit: Int,
+    @SerializedName("is_active")
+    val isActive: Boolean? = null
+)
+
+data class UserCouponData(
+    @SerializedName("coupon_id")
+    val couponId: Int,
+    @SerializedName("coupon_name")
+    val couponName: String,
+    @SerializedName("discount_type")
+    val discountType: String,
+    @SerializedName("discount_value")
+    val discountValue: Double,
+    @SerializedName("min_amount")
+    val minAmount: Double,
+    @SerializedName("start_date")
+    val startDate: String,
+    @SerializedName("end_date")
+    val endDate: String,
+    @SerializedName("usage_limit")
+    val usageLimit: Int,
+    @SerializedName("used_count")
+    val usedCount: Int,
+    @SerializedName("obtained_at")
+    val obtainedAt: String,
+    @SerializedName("can_use")
+    val canUse: Boolean,
+    @SerializedName("is_expired")
+    val isExpired: Boolean
+)
+
+data class CouponResponse(
+    val code: Int,
+    val message: String,
+    val data: CouponData?
+)
+
+data class CouponListResponse(
+    val code: Int,
+    val message: String,
+    val data: CouponListData?
+)
+
+data class CouponListData(
+    val list: List<CouponData>
+)
+
+data class UserCouponListResponse(
+    val code: Int,
+    val message: String,
+    val data: UserCouponListData?
+)
+
+data class UserCouponListData(
+    val list: List<UserCouponData>
+)
+
+data class CouponClaimResponse(
+    val code: Int,
+    val message: String,
+    val data: CouponClaimData?
+)
+
+data class CouponClaimData(
+    @SerializedName("coupon_name")
+    val couponName: String,
+    @SerializedName("discount_type")
+    val discountType: String,
+    @SerializedName("discount_value")
+    val discountValue: Double
+)
+
+data class CouponUseRequest(
+    val amount: Double
+)
+
+data class CouponUseResponse(
+    val code: Int,
+    val message: String,
+    val data: CouponUseData?
+)
+
+data class CouponUseData(
+    @SerializedName("original_amount")
+    val originalAmount: Double,
+    @SerializedName("discount_amount")
+    val discountAmount: Double,
+    @SerializedName("final_amount")
+    val finalAmount: Double,
+    @SerializedName("coupon_name")
+    val couponName: String
+)
+
 interface ApiService {
     @POST("/api/login")
     suspend fun login(@Body request: LoginRequest): Response<LoginResponse>
@@ -150,6 +333,58 @@ interface ApiService {
 
     @GET("/api/orders/not-started")
     suspend fun getNotStartedOrders(): Response<AllOrdersResponse>
+
+    // 车辆管理接口
+    @POST("/api/vehicle/add")
+    suspend fun addVehicle(
+        @Header("Authorization") token: String? = TOKEN,
+        @Body request: VehicleRequest
+    ): Response<VehicleResponse>
+
+    @GET("/api/vehicle/my-vehicles")
+    suspend fun getMyVehicles(
+        @Header("Authorization") token: String? = TOKEN
+    ): Response<VehicleListResponse>
+
+    @retrofit2.http.PUT("/api/vehicle/update/{vehicle_id}")
+    suspend fun updateVehicle(
+        @Path("vehicle_id") vehicleId: Int,
+        @Header("Authorization") token: String? = TOKEN,
+        @Body request: VehicleUpdateRequest
+    ): Response<VehicleResponse>
+
+    @retrofit2.http.DELETE("/api/vehicle/delete/{vehicle_id}")
+    suspend fun deleteVehicle(
+        @Path("vehicle_id") vehicleId: Int,
+        @Header("Authorization") token: String? = TOKEN
+    ): Response<BaseResponse>
+
+    // 优惠券管理接口
+    @POST("/api/coupon/create")
+    suspend fun createCoupon(
+        @Body request: CouponCreateRequest
+    ): Response<CouponResponse>
+
+    @GET("/api/coupon/available")
+    suspend fun getAvailableCoupons(): Response<CouponListResponse>
+
+    @POST("/api/coupon/claim/{coupon_id}")
+    suspend fun claimCoupon(
+        @Path("coupon_id") couponId: Int,
+        @Header("Authorization") token: String? = TOKEN
+    ): Response<CouponClaimResponse>
+
+    @GET("/api/coupon/my-coupons")
+    suspend fun getMyCoupons(
+        @Header("Authorization") token: String? = TOKEN
+    ): Response<UserCouponListResponse>
+
+    @POST("/api/coupon/use/{coupon_id}")
+    suspend fun useCoupon(
+        @Path("coupon_id") couponId: Int,
+        @Header("Authorization") token: String? = TOKEN,
+        @Body request: CouponUseRequest
+    ): Response<CouponUseResponse>
 }
 
 val APISERVICCE = retrofit.create(ApiService::class.java)
